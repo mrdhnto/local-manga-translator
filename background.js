@@ -79,11 +79,11 @@ Return ONLY valid JSON with no markdown fences, no commentary, no extra text. Us
       "height": <number, region height in pixels>,
       "fromLang": {
         "code": "${fromCode}",
-        "script": "<original text>"
+        "text": "<original text>"
       },
       "toLang": {
         "code": "${toCode}",
-        "script": "<translated text>"
+        "text": "<translated text>"
       },
       "imgWidth": <number, full image width in pixels>,
       "imgHeight": <number, full image height in pixels>
@@ -136,11 +136,21 @@ async function callLLMApi(imageBase64, settings, retryCount = 0) {
 
     if (!response.ok) {
       const errText = await response.text();
-      throw new Error(`API ${response.status}: ${errText}`);
+      const err = new Error(`API ${response.status}: ${errText}`);
+      err.status = response.status;
+      throw err;
     }
 
     const data = await response.json();
-    const content = data.choices?.[0]?.message?.content;
+    let content;
+
+    if (settings.apiSchema === "lm_studio") {
+      // Extract from LM Studio's native response format
+      content = data.output?.[0]?.content;
+    } else {
+      // Extract from standard OpenAI/OpenAPI response format
+      content = data.choices?.[0]?.message?.content;
+    }
 
     if (!content) {
       throw new Error("Empty response from LLM API");
@@ -162,8 +172,10 @@ async function callLLMApi(imageBase64, settings, retryCount = 0) {
     return { success: true, data: parsed };
 
   } catch (err) {
-    // Retry logic
-    if (retryCount < CONFIG.MAX_RETRIES) {
+    // Retry logic (only for network errors or 5xx server errors, not 4xx client errors)
+    const isClientError = err.status >= 400 && err.status < 500;
+    
+    if (!isClientError && retryCount < CONFIG.MAX_RETRIES) {
       await new Promise(r => setTimeout(r, CONFIG.RETRY_DELAY_MS * (retryCount + 1)));
       return callLLMApi(imageBase64, settings, retryCount + 1);
     }

@@ -22,8 +22,59 @@ function buildOpenApiRequest(imageBase64, settings, systemPrompt) {
         ]
       }
     ],
-    temperature: 0.1,
+    temperature: 0.8,
+    top_p: 0.95,
+    top_k: 40,
+    min_p: 0.05,
+    repeat_penalty: 1.1,
     max_tokens: 4096,
-    response_format: { type: "json_schema" }
+    response_format: { 
+      type: "json_schema",
+      json_schema: {
+        name: "manga_translation_regions",
+        strict: true,
+        schema: {
+          type: "object",
+          properties: {
+            regions: {
+              type: "array",
+              items: {
+                type: "object",
+                properties: {
+                  x: { type: "number" },
+                  y: { type: "number" },
+                  width: { type: "number" },
+                  height: { type: "number" },
+                  fromLang: {
+                    type: "object",
+                    properties: {
+                      code: { type: "string" },
+                      text: { type: "string" }
+                    },
+                    required: ["code", "text"],
+                    additionalProperties: false
+                  },
+                  toLang: {
+                    type: "object",
+                    properties: {
+                      code: { type: "string" },
+                      text: { type: "string" }
+                    },
+                    required: ["code", "text"],
+                    additionalProperties: false
+                  },
+                  imgWidth: { type: "number" },
+                  imgHeight: { type: "number" }
+                },
+                required: ["x", "y", "width", "height", "fromLang", "toLang", "imgWidth", "imgHeight"],
+                additionalProperties: false
+              }
+            }
+          },
+          required: ["regions"],
+          additionalProperties: false
+        }
+      }
+    }
   };
 }

@@ -198,11 +198,11 @@
       regionEl.style.fontSize = fontSize;
 
       // Set translated text
-      const translatedText = region.toLang?.script || region.translated_text || "";
+      const translatedText = region.toLang?.text || region.toLang?.script || region.translated_text || "";
       regionEl.textContent = translatedText;
 
       // Tooltip with original text
-      const originalText = region.fromLang?.script || region.original_text || "";
+      const originalText = region.fromLang?.text || region.fromLang?.script || region.original_text || "";
       regionEl.title = `Original: ${originalText}`;
 
       // Animation delay for staggered fade-in

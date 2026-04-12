@@ -12,7 +12,11 @@ function buildLmStudioRequest(imageBase64, settings, systemPrompt) {
       }
     ],
     system_prompt: systemPrompt,
-    temperature: 0.1,
+    temperature: 0.8,
+    top_p: 0.95,
+    top_k: 40,
+    min_p: 0.05,
+    repeat_penalty: 1.1,
     max_output_tokens: 4096,
   };
 }
