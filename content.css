@@ -1,0 +1,150 @@
+/* ── Local Manga Translator — Content Script Styles ─────────── */
+
+/* ── Wrapper ───────────────────────────────────────────────── */
+.manga-tl-wrapper {
+  position: relative;
+  line-height: 0;
+  overflow: hidden;
+}
+
+/* ── Loading Overlay ───────────────────────────────────────── */
+.manga-tl-loading {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.55);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 9998;
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+  animation: mangaTlFadeIn 0.3s ease;
+}
+
+.manga-tl-spinner {
+  width: 48px;
+  height: 48px;
+  border: 4px solid rgba(255, 255, 255, 0.2);
+  border-top-color: #a78bfa;
+  border-radius: 50%;
+  animation: mangaTlSpin 0.8s linear infinite;
+}
+
+.manga-tl-loading-text {
+  margin-top: 12px;
+  color: #e2e8f0;
+  font-family: "Segoe UI", system-ui, sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+}
+
+/* ── Translation Overlay Container ─────────────────────────── */
+.manga-tl-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 9999;
+  pointer-events: none;
+}
+
+/* ── Individual Text Region ────────────────────────────────── */
+.manga-tl-region {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 2px 4px;
+  box-sizing: border-box;
+
+  /* White bubble background to cover original text */
+  background: rgba(255, 255, 255, 0.92);
+  border-radius: 3px;
+
+  /* Text styling */
+  color: #111111;
+  line-height: 1.2;
+  word-break: break-word;
+  overflow-wrap: break-word;
+  overflow: hidden;
+  hyphens: auto;
+
+  /* Subtle shadow for depth */
+  text-shadow: none;
+
+  /* Pointer events enabled on regions for tooltip hover */
+  pointer-events: auto;
+  cursor: default;
+
+  /* Fade-in animation */
+  animation: mangaTlRegionFadeIn 0.4s ease both;
+}
+
+.manga-tl-region:hover {
+  outline: 2px solid rgba(167, 139, 250, 0.7);
+  outline-offset: 1px;
+}
+
+/* ── Error Indicator ───────────────────────────────────────── */
+.manga-tl-error-indicator {
+  position: absolute;
+  bottom: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(239, 68, 68, 0.9);
+  color: #fff;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-family: "Segoe UI", system-ui, sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  z-index: 10000;
+  pointer-events: none;
+  animation: mangaTlFadeIn 0.3s ease, mangaTlFadeOut 0.5s ease 4.5s;
+  white-space: nowrap;
+}
+
+/* ── Animations ────────────────────────────────────────────── */
+
+@keyframes mangaTlSpin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes mangaTlFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes mangaTlFadeOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes mangaTlRegionFadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}

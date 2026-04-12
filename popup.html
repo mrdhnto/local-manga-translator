@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Local Manga Translator</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="popup-container">
+
+    <!-- Header -->
+    <header class="popup-header">
+      <div class="header-left">
+        <div class="header-icon">漫</div>
+        <div>
+          <h1 class="header-title">Manga Translator</h1>
+          <span class="header-version">v1.0.0</span>
+        </div>
+      </div>
+      <label class="toggle-switch" title="Enable / Disable translation">
+        <input type="checkbox" id="toggle-enabled" checked>
+        <span class="toggle-slider"></span>
+      </label>
+    </header>
+
+    <!-- Connection Status -->
+    <section class="section">
+      <div class="section-header">
+        <span class="section-title">Connection</span>
+        <div class="connection-status" id="connection-status">
+          <span class="status-dot" id="status-dot"></span>
+          <span class="status-text" id="status-text">Unknown</span>
+        </div>
+      </div>
+      <button class="btn btn-secondary btn-sm" id="btn-test-connection">
+        <span class="btn-icon">⚡</span> Test Connection
+      </button>
+    </section>
+
+    <!-- API Settings -->
+    <section class="section">
+      <div class="section-header">
+        <span class="section-title">API Settings</span>
+        <button class="collapse-btn" data-target="api-settings-body">▾</button>
+      </div>
+      <div class="section-body" id="api-settings-body">
+        <div class="form-group">
+          <label for="api-schema">API Schema</label>
+          <select id="api-schema">
+            <option value="openapi">OpenAPI (OpenAI Compatible)</option>
+            <option value="lm_studio">LM Studio (Experimental)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="api-host">Host URL</label>
+          <input type="text" id="api-host" placeholder="http://127.0.0.1:1234/v1" spellcheck="false">
+        </div>
+        <div class="form-group">
+          <label for="api-model">Model</label>
+          <input type="text" id="api-model" placeholder="qwen2.5-vl-7b-instruct" spellcheck="false">
+        </div>
+      </div>
+    </section>
+
+    <!-- Translation Settings -->
+    <section class="section">
+      <div class="section-header">
+        <span class="section-title">Translation</span>
+      </div>
+      <div class="section-body">
+        <div class="form-row">
+          <div class="form-group flex-1">
+            <label for="translate-from">From</label>
+            <select id="translate-from">
+              <option value="auto">Auto Detect</option>
+              <option value="japanese" selected>Japanese</option>
+              <option value="english">English</option>
+              <option value="chinese">Chinese</option>
+              <option value="korean">Korean</option>
+              <option value="indonesian">Indonesian</option>
+            </select>
+          </div>
+          <div class="form-arrow">→</div>
+          <div class="form-group flex-1">
+            <label for="translate-to">To</label>
+            <select id="translate-to">
+              <option value="japanese">Japanese</option>
+              <option value="english" selected>English</option>
+              <option value="chinese">Chinese</option>
+              <option value="korean">Korean</option>
+              <option value="indonesian">Indonesian</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Font Settings -->
+    <section class="section">
+      <div class="section-header">
+        <span class="section-title">Font</span>
+      </div>
+      <div class="section-body">
+        <div class="form-row">
+          <div class="form-group flex-1">
+            <label for="font-family">Family</label>
+            <select id="font-family">
+              <option value="cc-wild-words">CC Wild Words</option>
+              <option value="komikah">Komikah</option>
+            </select>
+          </div>
+          <div class="form-group" style="width: 90px;">
+            <label for="font-size">Size</label>
+            <div class="font-size-control">
+              <input type="range" id="font-size-slider" min="8" max="32" value="16" step="1">
+              <span class="font-size-value" id="font-size-value">16px</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Actions -->
+    <section class="section">
+      <div class="action-buttons">
+        <button class="btn btn-primary" id="btn-translate-page">
+          <span class="btn-icon">🔄</span> Translate Page
+        </button>
+      </div>
+    </section>
+
+    <!-- Error Log -->
+    <section class="section">
+      <div class="section-header">
+        <span class="section-title">Error Log</span>
+        <button class="btn-text" id="btn-clear-log">Clear</button>
+      </div>
+      <div class="error-log-container">
+        <div class="error-log" id="error-log">
+          <div class="error-log-empty">No errors logged</div>
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+  <script src="config.js"></script>
+  <script src="popup.js"></script>
+</body>
+</html>

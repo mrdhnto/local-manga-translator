@@ -1,0 +1,495 @@
+/* ── Local Manga Translator — Popup Styles ─────────────────── */
+
+/* ── Reset & Base ──────────────────────────────────────────── */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+:root {
+  --bg-primary: #0f0f1a;
+  --bg-secondary: #1a1a2e;
+  --bg-tertiary: #16213e;
+  --bg-input: #0d1b2a;
+  --border: #2a2a4a;
+  --border-focus: #7c3aed;
+  --text-primary: #e2e8f0;
+  --text-secondary: #94a3b8;
+  --text-muted: #64748b;
+  --accent: #7c3aed;
+  --accent-hover: #6d28d9;
+  --accent-subtle: rgba(124, 58, 237, 0.15);
+  --success: #22c55e;
+  --error: #ef4444;
+  --warning: #f59e0b;
+  --radius: 8px;
+  --radius-sm: 5px;
+  --transition: 0.2s ease;
+}
+
+body {
+  width: 360px;
+  min-height: 200px;
+  max-height: 580px;
+  overflow-y: auto;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+body::-webkit-scrollbar {
+  width: 5px;
+}
+body::-webkit-scrollbar-track {
+  background: var(--bg-primary);
+}
+body::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 3px;
+}
+
+/* ── Popup Container ───────────────────────────────────────── */
+.popup-container {
+  padding: 0;
+}
+
+/* ── Header ────────────────────────────────────────────────── */
+.popup-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+  background: linear-gradient(135deg, var(--bg-tertiary), var(--bg-secondary));
+  border-bottom: 1px solid var(--border);
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.header-icon {
+  width: 36px;
+  height: 36px;
+  background: linear-gradient(135deg, #7c3aed, #a78bfa);
+  border-radius: var(--radius);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  font-weight: 700;
+  color: #fff;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.header-title {
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: -0.3px;
+  color: var(--text-primary);
+}
+
+.header-version {
+  font-size: 10px;
+  color: var(--text-muted);
+  font-weight: 500;
+  background: var(--accent-subtle);
+  padding: 1px 6px;
+  border-radius: 10px;
+}
+
+/* ── Toggle Switch ─────────────────────────────────────────── */
+.toggle-switch {
+  position: relative;
+  width: 44px;
+  height: 24px;
+  cursor: pointer;
+}
+
+.toggle-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.toggle-slider {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: var(--border);
+  border-radius: 24px;
+  transition: var(--transition);
+}
+
+.toggle-slider::before {
+  content: "";
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  left: 3px;
+  bottom: 3px;
+  background: var(--text-secondary);
+  border-radius: 50%;
+  transition: var(--transition);
+}
+
+.toggle-switch input:checked + .toggle-slider {
+  background: var(--accent);
+}
+
+.toggle-switch input:checked + .toggle-slider::before {
+  transform: translateX(20px);
+  background: #fff;
+}
+
+/* ── Sections ──────────────────────────────────────────────── */
+.section {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border);
+}
+
+.section:last-child {
+  border-bottom: none;
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.section-title {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: var(--text-muted);
+}
+
+.section-body {
+  overflow: hidden;
+  transition: max-height 0.3s ease;
+}
+
+.collapse-btn {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 14px;
+  cursor: pointer;
+  padding: 2px 4px;
+  transition: var(--transition);
+}
+
+.collapse-btn:hover {
+  color: var(--text-primary);
+}
+
+.collapse-btn.collapsed {
+  transform: rotate(-90deg);
+}
+
+/* ── Connection Status ─────────────────────────────────────── */
+.connection-status {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--text-muted);
+  transition: background 0.3s ease;
+}
+
+.status-dot.connected {
+  background: var(--success);
+  box-shadow: 0 0 6px rgba(34, 197, 94, 0.5);
+}
+
+.status-dot.disconnected {
+  background: var(--error);
+  box-shadow: 0 0 6px rgba(239, 68, 68, 0.5);
+}
+
+.status-dot.checking {
+  background: var(--warning);
+  animation: statusPulse 1s ease infinite;
+}
+
+.status-text {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+/* ── Forms ──────────────────────────────────────────────────── */
+.form-group {
+  margin-bottom: 8px;
+}
+
+.form-group label {
+  display: block;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  margin-bottom: 4px;
+}
+
+.form-group input[type="text"],
+.form-group select {
+  width: 100%;
+  padding: 7px 10px;
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  font-size: 12px;
+  font-family: "Cascadia Code", "Fira Code", monospace;
+  transition: border-color var(--transition);
+  outline: none;
+}
+
+.form-group input[type="text"]:focus,
+.form-group select:focus {
+  border-color: var(--border-focus);
+  box-shadow: 0 0 0 2px rgba(124, 58, 237, 0.1);
+}
+
+.form-group select {
+  font-family: "Segoe UI", system-ui, sans-serif;
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2394a3b8' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 8px center;
+  padding-right: 28px;
+}
+
+.form-group select option {
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+}
+
+.form-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.form-arrow {
+  color: var(--text-muted);
+  font-weight: 700;
+  font-size: 16px;
+  padding-top: 14px; /* Align with the selects, accounting for labels */
+}
+
+.flex-1 {
+  flex: 1;
+}
+
+/* ── Font Size Control ─────────────────────────────────────── */
+.font-size-control {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.font-size-control input[type="range"] {
+  width: 100%;
+  height: 4px;
+  appearance: none;
+  -webkit-appearance: none;
+  background: var(--border);
+  border-radius: 2px;
+  outline: none;
+}
+
+.font-size-control input[type="range"]::-webkit-slider-thumb {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 14px;
+  height: 14px;
+  background: var(--accent);
+  border-radius: 50%;
+  cursor: pointer;
+  border: 2px solid var(--bg-primary);
+  transition: background var(--transition);
+}
+
+.font-size-control input[type="range"]::-webkit-slider-thumb:hover {
+  background: var(--accent-hover);
+}
+
+.font-size-value {
+  font-size: 10px;
+  color: var(--text-muted);
+  font-weight: 600;
+  font-family: "Cascadia Code", "Fira Code", monospace;
+}
+
+/* ── Buttons ───────────────────────────────────────────────── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition);
+  outline: none;
+  font-family: inherit;
+}
+
+.btn-icon {
+  font-size: 13px;
+}
+
+.btn-primary {
+  width: 100%;
+  background: linear-gradient(135deg, var(--accent), var(--accent-hover));
+  color: #fff;
+  padding: 10px 16px;
+  font-size: 13px;
+}
+
+.btn-primary:hover {
+  background: linear-gradient(135deg, var(--accent-hover), #5b21b6);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(124, 58, 237, 0.3);
+}
+
+.btn-primary:active {
+  transform: translateY(0);
+}
+
+.btn-secondary {
+  width: 100%;
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+  border: 1px solid var(--border);
+}
+
+.btn-secondary:hover {
+  background: var(--border);
+}
+
+.btn-sm {
+  padding: 6px 10px;
+  font-size: 11px;
+}
+
+.btn-text {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 2px 6px;
+  transition: color var(--transition);
+  font-family: inherit;
+}
+
+.btn-text:hover {
+  color: var(--error);
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+/* ── Action Buttons ────────────────────────────────────────── */
+.action-buttons {
+  display: flex;
+  gap: 8px;
+}
+
+/* ── Error Log ─────────────────────────────────────────────── */
+.error-log-container {
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+}
+
+.error-log {
+  min-height: 40px;
+  max-height: 100px;
+  overflow-y: auto;
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 8px;
+  font-family: "Cascadia Code", "Fira Code", "Consolas", monospace;
+  font-size: 11px;
+  line-height: 1.4;
+}
+
+.error-log::-webkit-scrollbar {
+  width: 4px;
+}
+.error-log::-webkit-scrollbar-track {
+  background: transparent;
+}
+.error-log::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 2px;
+}
+
+.error-log-empty {
+  color: var(--text-muted);
+  text-align: center;
+  padding: 12px 0;
+  font-style: italic;
+  font-family: "Segoe UI", system-ui, sans-serif;
+}
+
+.error-entry {
+  padding: 4px 6px;
+  border-bottom: 1px solid rgba(42, 42, 74, 0.4);
+  word-break: break-all;
+}
+
+.error-entry:last-child {
+  border-bottom: none;
+}
+
+.error-timestamp {
+  color: var(--text-muted);
+  font-size: 9px;
+  display: block;
+}
+
+.error-message {
+  color: var(--error);
+  margin-top: 1px;
+}
+
+/* ── Animations ────────────────────────────────────────────── */
+@keyframes statusPulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+@keyframes btnLoading {
+  to { transform: rotate(360deg); }
+}
+
+.btn.loading .btn-icon {
+  animation: btnLoading 0.8s linear infinite;
+  display: inline-block;
+}
