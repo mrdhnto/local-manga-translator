@@ -171,22 +171,32 @@
     const displayHeight = img.offsetHeight;
 
     regions.forEach((region, index) => {
-      const imgWidth = region.imgWidth || img.naturalWidth;
-      const imgHeight = region.imgHeight || img.naturalHeight;
-
-      // Scale factor from natural to displayed size
-      const scaleX = displayWidth / imgWidth;
-      const scaleY = displayHeight / imgHeight;
-
       const regionEl = document.createElement("div");
       regionEl.classList.add(REGION_CLASS);
       regionEl.setAttribute("data-region-index", index);
 
-      // Position and size based on pixel coordinates scaled to display size
-      regionEl.style.left = (region.x * scaleX) + "px";
-      regionEl.style.top = (region.y * scaleY) + "px";
-      regionEl.style.width = (region.width * scaleX) + "px";
-      regionEl.style.height = (region.height * scaleY) + "px";
+      // Position and size
+      if (region.x_1000 !== undefined) {
+        regionEl.style.left = (region.x_1000 / 1000) * displayWidth + "px";
+        regionEl.style.top = (region.y_1000 / 1000) * displayHeight + "px";
+        regionEl.style.width = (region.width_1000 / 1000) * displayWidth + "px";
+        regionEl.style.height = (region.height_1000 / 1000) * displayHeight + "px";
+      } else if (region.x_percent !== undefined) {
+        regionEl.style.left = (region.x_percent / 100) * displayWidth + "px";
+        regionEl.style.top = (region.y_percent / 100) * displayHeight + "px";
+        regionEl.style.width = (region.width_percent / 100) * displayWidth + "px";
+        regionEl.style.height = (region.height_percent / 100) * displayHeight + "px";
+      } else {
+        const imgWidth = region.imgWidth || img.naturalWidth;
+        const imgHeight = region.imgHeight || img.naturalHeight;
+        const scaleX = displayWidth / imgWidth;
+        const scaleY = displayHeight / imgHeight;
+        
+        regionEl.style.left = (region.x * scaleX) + "px";
+        regionEl.style.top = (region.y * scaleY) + "px";
+        regionEl.style.width = (region.width * scaleX) + "px";
+        regionEl.style.height = (region.height * scaleY) + "px";
+      }
 
       // Font settings
       const fontKey = settings.defaultFont || CONFIG.DEFAULT_FONT;
@@ -398,15 +408,27 @@
         const region = regions[idx];
         if (!region) return;
 
-        const imgWidth = region.imgWidth || img.naturalWidth;
-        const imgHeight = region.imgHeight || img.naturalHeight;
-        const scaleX = displayWidth / imgWidth;
-        const scaleY = displayHeight / imgHeight;
+        if (region.x_1000 !== undefined) {
+          regionEl.style.left = (region.x_1000 / 1000) * displayWidth + "px";
+          regionEl.style.top = (region.y_1000 / 1000) * displayHeight + "px";
+          regionEl.style.width = (region.width_1000 / 1000) * displayWidth + "px";
+          regionEl.style.height = (region.height_1000 / 1000) * displayHeight + "px";
+        } else if (region.x_percent !== undefined) {
+          regionEl.style.left = (region.x_percent / 100) * displayWidth + "px";
+          regionEl.style.top = (region.y_percent / 100) * displayHeight + "px";
+          regionEl.style.width = (region.width_percent / 100) * displayWidth + "px";
+          regionEl.style.height = (region.height_percent / 100) * displayHeight + "px";
+        } else {
+          const imgWidth = region.imgWidth || img.naturalWidth;
+          const imgHeight = region.imgHeight || img.naturalHeight;
+          const scaleX = displayWidth / imgWidth;
+          const scaleY = displayHeight / imgHeight;
 
-        regionEl.style.left = (region.x * scaleX) + "px";
-        regionEl.style.top = (region.y * scaleY) + "px";
-        regionEl.style.width = (region.width * scaleX) + "px";
-        regionEl.style.height = (region.height * scaleY) + "px";
+          regionEl.style.left = (region.x * scaleX) + "px";
+          regionEl.style.top = (region.y * scaleY) + "px";
+          regionEl.style.width = (region.width * scaleX) + "px";
+          regionEl.style.height = (region.height * scaleY) + "px";
+        }
       });
     });
   }

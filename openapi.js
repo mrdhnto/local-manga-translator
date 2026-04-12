@@ -41,10 +41,10 @@ function buildOpenApiRequest(imageBase64, settings, systemPrompt) {
               items: {
                 type: "object",
                 properties: {
-                  x: { type: "number" },
-                  y: { type: "number" },
-                  width: { type: "number" },
-                  height: { type: "number" },
+                  x_1000: { type: "number" },
+                  y_1000: { type: "number" },
+                  width_1000: { type: "number" },
+                  height_1000: { type: "number" },
                   fromLang: {
                     type: "object",
                     properties: {
@@ -62,11 +62,9 @@ function buildOpenApiRequest(imageBase64, settings, systemPrompt) {
                     },
                     required: ["code", "text"],
                     additionalProperties: false
-                  },
-                  imgWidth: { type: "number" },
-                  imgHeight: { type: "number" }
+                  }
                 },
-                required: ["x", "y", "width", "height", "fromLang", "toLang", "imgWidth", "imgHeight"],
+                required: ["x_1000", "y_1000", "width_1000", "height_1000", "fromLang", "toLang"],
                 additionalProperties: false
               }
             }

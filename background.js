@@ -66,17 +66,17 @@ function buildSystemPrompt(settings) {
 Your task:
 1. Identify ALL text regions in the image (speech bubbles, captions, sound effects, narration boxes, etc.)
 2. For each text region, extract the original text and translate it from ${fromLang} to ${toLang}.
-3. Estimate the bounding box of each text region in PIXEL coordinates relative to the full image dimensions.
+3. Estimate the bounding box of each text region using a 1000-point scale (0 to 1000) relative to the full image dimensions, where 0 is the top/left edge and 1000 is the bottom/right edge.
 
 Return ONLY valid JSON with no markdown fences, no commentary, no extra text. Use this exact structure:
 
 {
   "regions": [
     {
-      "x": <number, left edge in pixels>,
-      "y": <number, top edge in pixels>,
-      "width": <number, region width in pixels>,
-      "height": <number, region height in pixels>,
+      "x_1000": <number, left edge (0-1000)>,
+      "y_1000": <number, top edge (0-1000)>,
+      "width_1000": <number, region width (0-1000)>,
+      "height_1000": <number, region height (0-1000)>,
       "fromLang": {
         "code": "${fromCode}",
         "text": "<original text>"
@@ -84,17 +84,14 @@ Return ONLY valid JSON with no markdown fences, no commentary, no extra text. Us
       "toLang": {
         "code": "${toCode}",
         "text": "<translated text>"
-      },
-      "imgWidth": <number, full image width in pixels>,
-      "imgHeight": <number, full image height in pixels>
+      }
     }
   ]
 }
 
 Rules:
-- x, y are the top-left corner of the text bounding box in pixels.
-- width, height are the dimensions of the text bounding box in pixels.
-- imgWidth and imgHeight must match the actual image dimensions you see.
+- x_1000, y_1000 are the top-left corner coordinates on the 1000-point scale.
+- width_1000, height_1000 are the dimensions of the bounding box on the 1000-point scale.
 - Preserve special characters, emojis, hearts (♡), and sound effects in translations.
 - If the source language is "Auto Detect", identify the language yourself and set fromLang.code accordingly.
 - If text is vertical (common in Japanese manga), still provide the bounding box that encompasses all the vertical text.
