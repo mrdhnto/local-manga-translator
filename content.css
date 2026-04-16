@@ -62,19 +62,19 @@
   align-items: center;
   justify-content: center;
   text-align: center;
-  padding: 2px 4px;
+  padding: 6px 12px;
   box-sizing: border-box;
 
   /* White bubble background to cover original text */
-  background: rgba(255, 255, 255, 0.92);
-  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
 
   /* Text styling */
   color: #111111;
-  line-height: 1.2;
+  line-height: 1.35;
   word-break: break-word;
   overflow-wrap: break-word;
-  overflow: hidden;
   hyphens: auto;
 
   /* Subtle shadow for depth */
@@ -90,7 +90,7 @@
 
 .manga-tl-region:hover {
   outline: 2px solid rgba(167, 139, 250, 0.7);
-  outline-offset: 1px;
+  outline-offset: 2px;
 }
 
 /* ── Error Indicator ───────────────────────────────────────── */
@@ -141,10 +141,8 @@
 @keyframes mangaTlRegionFadeIn {
   from {
     opacity: 0;
-    transform: scale(0.95);
   }
   to {
     opacity: 1;
-    transform: scale(1);
   }
 }

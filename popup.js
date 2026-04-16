@@ -18,8 +18,11 @@ document.addEventListener("DOMContentLoaded", async () => {
   const fontFamily       = document.getElementById("font-family");
   const fontSizeSlider   = document.getElementById("font-size-slider");
   const fontSizeValue    = document.getElementById("font-size-value");
+  const minImageWidth    = document.getElementById("min-image-width");
+  const minImageHeight   = document.getElementById("min-image-height");
   const btnTranslatePage = document.getElementById("btn-translate-page");
   const btnClearLog      = document.getElementById("btn-clear-log");
+  const btnDebugModal    = document.getElementById("btn-debug-modal");
   const errorLogEl       = document.getElementById("error-log");
 
   // ── Collapsible Sections ──────────────────────────────────
@@ -50,6 +53,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     translateFrom.value        = settings.translateFrom || CONFIG.TRANSLATE_FROM;
     translateTo.value          = settings.translateTo   || CONFIG.TRANSLATE_TO;
     fontFamily.value           = settings.defaultFont   || CONFIG.DEFAULT_FONT;
+    minImageWidth.value        = settings.minImageWidth !== undefined ? settings.minImageWidth : CONFIG.MIN_IMAGE_WIDTH;
+    minImageHeight.value       = settings.minImageHeight !== undefined ? settings.minImageHeight : CONFIG.MIN_IMAGE_HEIGHT;
 
     const fontSize = parseInt(settings.defaultFontSize) || parseInt(CONFIG.DEFAULT_FONT_SIZE);
     fontSizeSlider.value       = fontSize;
@@ -88,6 +93,9 @@ document.addEventListener("DOMContentLoaded", async () => {
   translateFrom.addEventListener("change", () => saveSetting("translateFrom", translateFrom.value));
   translateTo.addEventListener("change", () => saveSetting("translateTo", translateTo.value));
   fontFamily.addEventListener("change", () => saveSetting("defaultFont", fontFamily.value));
+  
+  minImageWidth.addEventListener("change", () => saveSetting("minImageWidth", parseInt(minImageWidth.value, 10) || 0));
+  minImageHeight.addEventListener("change", () => saveSetting("minImageHeight", parseInt(minImageHeight.value, 10) || 0));
 
   fontSizeSlider.addEventListener("input", () => {
     fontSizeValue.textContent = fontSizeSlider.value + "px";
@@ -182,6 +190,23 @@ document.addEventListener("DOMContentLoaded", async () => {
     await chrome.runtime.sendMessage({ action: "clearErrorLog" });
     errorLogEl.innerHTML = '<div class="error-log-empty">No errors logged</div>';
   });
+
+  if (btnDebugModal) {
+    if (!CONFIG.DEBUG_MODE) {
+      btnDebugModal.style.display = 'none';
+    } else {
+      btnDebugModal.addEventListener("click", async () => {
+        try {
+          const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+          if (tab?.id) {
+            await chrome.tabs.sendMessage(tab.id, { action: "openDebugModal" });
+          }
+        } catch (err) {
+          console.error("Failed to open debug modal:", err);
+        }
+      });
+    }
+  }
 
   // ── Helpers ────────────────────────────────────────────────
 

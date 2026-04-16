@@ -96,6 +96,26 @@
       </div>
     </section>
 
+    <!-- Image Settings -->
+    <section class="section">
+      <div class="section-header">
+        <span class="section-title">Minimum Image Size</span>
+      </div>
+      <div class="section-body">
+        <div class="form-row">
+          <div class="form-group flex-1">
+            <label for="min-image-width">Min Width (px)</label>
+            <input type="number" id="min-image-width" placeholder="300" min="0" step="10">
+          </div>
+          <div class="form-arrow">×</div>
+          <div class="form-group flex-1">
+            <label for="min-image-height">Min Height (px)</label>
+            <input type="number" id="min-image-height" placeholder="300" min="0" step="10">
+          </div>
+        </div>
+      </div>
+    </section>
+
     <!-- Font Settings -->
     <section class="section">
       <div class="section-header">
@@ -134,7 +154,10 @@
     <section class="section">
       <div class="section-header">
         <span class="section-title">Error Log</span>
-        <button class="btn-text" id="btn-clear-log">Clear</button>
+        <div class="section-header-actions" style="display: flex; gap: 8px;">
+          <button class="btn-text" id="btn-debug-modal" title="View Debug Modal in the main page">Debug</button>
+          <button class="btn-text" id="btn-clear-log">Clear</button>
+        </div>
       </div>
       <div class="error-log-container">
         <div class="error-log" id="error-log">

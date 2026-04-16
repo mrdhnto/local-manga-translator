@@ -66,17 +66,17 @@ function buildSystemPrompt(settings) {
 Your task:
 1. Identify ALL text regions in the image (speech bubbles, captions, sound effects, narration boxes, etc.)
 2. For each text region, extract the original text and translate it from ${fromLang} to ${toLang}.
-3. Estimate the bounding box of each text region using a 1000-point scale (0 to 1000) relative to the full image dimensions, where 0 is the top/left edge and 1000 is the bottom/right edge.
+3. Estimate the bounding box of each text region using a 1000-point scale (0 to 1000) relative to the full image dimensions.
 
 Return ONLY valid JSON with no markdown fences, no commentary, no extra text. Use this exact structure:
 
 {
   "regions": [
     {
-      "x_1000": <number, left edge (0-1000)>,
-      "y_1000": <number, top edge (0-1000)>,
-      "width_1000": <number, region width (0-1000)>,
-      "height_1000": <number, region height (0-1000)>,
+      "box_xmin_1000": <number, left edge (0-1000)>,
+      "box_ymin_1000": <number, top edge (0-1000)>,
+      "box_xmax_1000": <number, right edge (0-1000)>,
+      "box_ymax_1000": <number, bottom edge (0-1000)>,
       "fromLang": {
         "code": "${fromCode}",
         "text": "<original text>"
@@ -90,13 +90,45 @@ Return ONLY valid JSON with no markdown fences, no commentary, no extra text. Us
 }
 
 Rules:
-- x_1000, y_1000 are the top-left corner coordinates on the 1000-point scale.
-- width_1000, height_1000 are the dimensions of the bounding box on the 1000-point scale.
+- Coordinates are on the 1000-point scale (0 is top-left, 1000 is bottom-right).
+- Ensure box_xmin_1000 < box_xmax_1000 and box_ymin_1000 < box_ymax_1000.
 - Preserve special characters, emojis, hearts (♡), and sound effects in translations.
 - If the source language is "Auto Detect", identify the language yourself and set fromLang.code accordingly.
 - If text is vertical (common in Japanese manga), still provide the bounding box that encompasses all the vertical text.
 - If no text is found in the image, return: { "regions": [] }
 - Return ONLY the JSON object. No explanation, no markdown.`;
+}
+
+// ── Payload Truncation Helper ───────────────────────────────
+
+function createTruncatedPayload(body) {
+  let cleanPayload;
+  try {
+    cleanPayload = JSON.parse(JSON.stringify(body));
+    // For OpenAPI schema
+    if (cleanPayload.messages) {
+      for (let msg of cleanPayload.messages) {
+        if (Array.isArray(msg.content)) {
+          for (let part of msg.content) {
+            if (part.type === "image_url" && typeof part.image_url?.url === "string" && part.image_url.url.length > 100) {
+              part.image_url.url = `[Base64 Image Truncated - length: ${part.image_url.url.length}]`;
+            }
+          }
+        }
+      }
+    }
+    // For LM Studio native schema
+    if (cleanPayload.input && Array.isArray(cleanPayload.input)) {
+      for (let part of cleanPayload.input) {
+        if (part.type === "image" && typeof part.data_url === "string" && part.data_url.length > 100) {
+          part.data_url = `[Base64 Image Truncated - length: ${part.data_url.length}]`;
+        }
+      }
+    }
+  } catch (e) {
+    cleanPayload = { error: "Failed to parse payload for logging" };
+  }
+  return cleanPayload;
 }
 
 // ── API Call ─────────────────────────────────────────────────
@@ -166,7 +198,8 @@ async function callLLMApi(imageBase64, settings, retryCount = 0) {
       throw new Error(`Failed to parse LLM JSON: ${parseErr.message}\nRaw: ${content.substring(0, 500)}`);
     }
 
-    return { success: true, data: parsed };
+    const outPayload = createTruncatedPayload(body);
+    return { success: true, data: parsed, payload: outPayload, responseData: content };
 
   } catch (err) {
     // Retry logic (only for network errors or 5xx server errors, not 4xx client errors)
@@ -178,7 +211,8 @@ async function callLLMApi(imageBase64, settings, retryCount = 0) {
     }
 
     await logError(err);
-    return { success: false, error: err.message };
+    const outPayload = createTruncatedPayload(body);
+    return { success: false, error: err.message, payload: outPayload, responseData: err.message };
   }
 }
 

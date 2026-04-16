@@ -175,28 +175,72 @@
       regionEl.classList.add(REGION_CLASS);
       regionEl.setAttribute("data-region-index", index);
 
-      // Position and size
-      if (region.x_1000 !== undefined) {
-        regionEl.style.left = (region.x_1000 / 1000) * displayWidth + "px";
-        regionEl.style.top = (region.y_1000 / 1000) * displayHeight + "px";
-        regionEl.style.width = (region.width_1000 / 1000) * displayWidth + "px";
-        regionEl.style.height = (region.height_1000 / 1000) * displayHeight + "px";
+      // Support both new box_ coordinates and fallback backward compatibility
+      let boxLeft, boxTop, boxWidth, boxHeight;
+
+      if (region.box_xmin_1000 !== undefined) {
+        boxLeft = (region.box_xmin_1000 / 1000) * displayWidth;
+        boxTop = (region.box_ymin_1000 / 1000) * displayHeight;
+        boxWidth = ((region.box_xmax_1000 - region.box_xmin_1000) / 1000) * displayWidth;
+        boxHeight = ((region.box_ymax_1000 - region.box_ymin_1000) / 1000) * displayHeight;
+      } else if (region.x_1000 !== undefined) {
+        // Fallback for older model payload logic that used x_1000, y_1000
+        const cx = region.x_1000;
+        const cy = region.y_1000;
+        const w = region.width_1000;
+        const h = region.height_1000;
+        // Adjust for common error where model passed center as x,y
+        if (cx + w > 1050) {
+           boxLeft = ((cx - w/2) / 1000) * displayWidth;
+        } else {
+           boxLeft = (cx / 1000) * displayWidth;
+        }
+        boxTop = (cy / 1000) * displayHeight;
+        boxWidth = (w / 1000) * displayWidth;
+        boxHeight = (h / 1000) * displayHeight;
       } else if (region.x_percent !== undefined) {
-        regionEl.style.left = (region.x_percent / 100) * displayWidth + "px";
-        regionEl.style.top = (region.y_percent / 100) * displayHeight + "px";
-        regionEl.style.width = (region.width_percent / 100) * displayWidth + "px";
-        regionEl.style.height = (region.height_percent / 100) * displayHeight + "px";
+        boxLeft = (region.x_percent / 100) * displayWidth;
+        boxTop = (region.y_percent / 100) * displayHeight;
+        boxWidth = (region.width_percent / 100) * displayWidth;
+        boxHeight = (region.height_percent / 100) * displayHeight;
       } else {
         const imgWidth = region.imgWidth || img.naturalWidth;
         const imgHeight = region.imgHeight || img.naturalHeight;
         const scaleX = displayWidth / imgWidth;
         const scaleY = displayHeight / imgHeight;
-        
-        regionEl.style.left = (region.x * scaleX) + "px";
-        regionEl.style.top = (region.y * scaleY) + "px";
-        regionEl.style.width = (region.width * scaleX) + "px";
-        regionEl.style.height = (region.height * scaleY) + "px";
+        boxLeft = region.x * scaleX;
+        boxTop = region.y * scaleY;
+        boxWidth = region.width * scaleX;
+        boxHeight = region.height * scaleY;
       }
+
+      // Optimize text rendering position dynamically
+      // Draw translated text anchored at the *center* of the detected bounding box,
+      // avoiding narrow wrapping for vertical Japanese text.
+      const centerX = boxLeft + (boxWidth / 2);
+      const centerY = boxTop + (boxHeight / 2);
+      
+      regionEl.style.left = centerX + "px";
+      regionEl.style.top = centerY + "px";
+      regionEl.style.transform = "translate(-50%, -50%)";
+      
+      // Calculate a safe max container width to prevent text from overflowing the image
+      const paddingH = 30; // 15px max safe padding each side
+      const safeMaxWidth = Math.max(
+        100, 
+        Math.min(
+          boxWidth * 1.5, // Allow the box to expand horizontally slightly compared to original vertical text
+          (displayWidth - centerX) * 2 - paddingH, 
+          centerX * 2 - paddingH,
+          300 // Absolute max width for manga bubbles
+        )
+      );
+      
+      regionEl.style.maxWidth = safeMaxWidth + "px";
+      regionEl.style.width = "max-content";
+      
+      // We no longer strictly bound height, let text flow naturally
+      regionEl.style.minHeight = Math.min(boxHeight, 40) + "px";
 
       // Font settings
       const fontKey = settings.defaultFont || CONFIG.DEFAULT_FONT;
@@ -256,6 +300,9 @@
       chrome.runtime.sendMessage({ action: "getSettings" }, resolve);
     });
 
+    if (settings?.minImageWidth !== undefined) CONFIG.MIN_IMAGE_WIDTH = parseInt(settings.minImageWidth, 10);
+    if (settings?.minImageHeight !== undefined) CONFIG.MIN_IMAGE_HEIGHT = parseInt(settings.minImageHeight, 10);
+
     if (!settings.enabled) {
       img.removeAttribute(PROCESSED_ATTR);
       return;
@@ -285,6 +332,10 @@
           }
         });
       });
+
+      if (window.MangaTLDebug) {
+        window.MangaTLDebug.saveLog(result, img, settings);
+      }
 
       removeLoading(wrapper);
 
@@ -326,6 +377,9 @@
     const settings = await new Promise(resolve => {
       chrome.runtime.sendMessage({ action: "getSettings" }, resolve);
     });
+
+    if (settings?.minImageWidth !== undefined) CONFIG.MIN_IMAGE_WIDTH = parseInt(settings.minImageWidth, 10);
+    if (settings?.minImageHeight !== undefined) CONFIG.MIN_IMAGE_HEIGHT = parseInt(settings.minImageHeight, 10);
 
     if (!settings?.enabled) return;
 
@@ -408,27 +462,62 @@
         const region = regions[idx];
         if (!region) return;
 
-        if (region.x_1000 !== undefined) {
-          regionEl.style.left = (region.x_1000 / 1000) * displayWidth + "px";
-          regionEl.style.top = (region.y_1000 / 1000) * displayHeight + "px";
-          regionEl.style.width = (region.width_1000 / 1000) * displayWidth + "px";
-          regionEl.style.height = (region.height_1000 / 1000) * displayHeight + "px";
+        let boxLeft, boxTop, boxWidth, boxHeight;
+        
+        if (region.box_xmin_1000 !== undefined) {
+          boxLeft = (region.box_xmin_1000 / 1000) * displayWidth;
+          boxTop = (region.box_ymin_1000 / 1000) * displayHeight;
+          boxWidth = ((region.box_xmax_1000 - region.box_xmin_1000) / 1000) * displayWidth;
+          boxHeight = ((region.box_ymax_1000 - region.box_ymin_1000) / 1000) * displayHeight;
+        } else if (region.x_1000 !== undefined) {
+          const cx = region.x_1000;
+          const cy = region.y_1000;
+          const w = region.width_1000;
+          const h = region.height_1000;
+          if (cx + w > 1050) {
+             boxLeft = ((cx - w/2) / 1000) * displayWidth;
+          } else {
+             boxLeft = (cx / 1000) * displayWidth;
+          }
+          boxTop = (cy / 1000) * displayHeight;
+          boxWidth = (w / 1000) * displayWidth;
+          boxHeight = (h / 1000) * displayHeight;
         } else if (region.x_percent !== undefined) {
-          regionEl.style.left = (region.x_percent / 100) * displayWidth + "px";
-          regionEl.style.top = (region.y_percent / 100) * displayHeight + "px";
-          regionEl.style.width = (region.width_percent / 100) * displayWidth + "px";
-          regionEl.style.height = (region.height_percent / 100) * displayHeight + "px";
+          boxLeft = (region.x_percent / 100) * displayWidth;
+          boxTop = (region.y_percent / 100) * displayHeight;
+          boxWidth = (region.width_percent / 100) * displayWidth;
+          boxHeight = (region.height_percent / 100) * displayHeight;
         } else {
           const imgWidth = region.imgWidth || img.naturalWidth;
           const imgHeight = region.imgHeight || img.naturalHeight;
           const scaleX = displayWidth / imgWidth;
           const scaleY = displayHeight / imgHeight;
-
-          regionEl.style.left = (region.x * scaleX) + "px";
-          regionEl.style.top = (region.y * scaleY) + "px";
-          regionEl.style.width = (region.width * scaleX) + "px";
-          regionEl.style.height = (region.height * scaleY) + "px";
+          boxLeft = region.x * scaleX;
+          boxTop = region.y * scaleY;
+          boxWidth = region.width * scaleX;
+          boxHeight = region.height * scaleY;
         }
+
+        const centerX = boxLeft + (boxWidth / 2);
+        const centerY = boxTop + (boxHeight / 2);
+        
+        regionEl.style.left = centerX + "px";
+        regionEl.style.top = centerY + "px";
+        regionEl.style.transform = "translate(-50%, -50%)";
+        
+        const paddingH = 30;
+        const safeMaxWidth = Math.max(
+          100, 
+          Math.min(
+            boxWidth * 1.5, 
+            (displayWidth - centerX) * 2 - paddingH, 
+            centerX * 2 - paddingH,
+            300
+          )
+        );
+        regionEl.style.maxWidth = safeMaxWidth + "px";
+        regionEl.style.width = "max-content";
+        regionEl.style.minHeight = Math.min(boxHeight, 40) + "px";
       });
     });
   }
@@ -472,9 +561,18 @@
         setOverlaysVisible(false);
         sendResponse({ success: true });
         break;
+
+      case "openDebugModal":
+        if (window.MangaTLDebug) {
+          window.MangaTLDebug.openModal();
+        }
+        sendResponse({ success: true });
+        break;
     }
     return true;
   });
+
+
 
   // ── Initialize ─────────────────────────────────────────────
 
@@ -482,6 +580,9 @@
     const settings = await new Promise(resolve => {
       chrome.runtime.sendMessage({ action: "getSettings" }, resolve);
     });
+
+    if (settings?.minImageWidth !== undefined) CONFIG.MIN_IMAGE_WIDTH = parseInt(settings.minImageWidth, 10);
+    if (settings?.minImageHeight !== undefined) CONFIG.MIN_IMAGE_HEIGHT = parseInt(settings.minImageHeight, 10);
 
     isEnabled = settings?.enabled ?? true;
 

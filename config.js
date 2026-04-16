@@ -49,7 +49,11 @@ const CONFIG = {
 
   // ── API Retry ─────────────────────────────────────────────
   MAX_RETRIES: 1,
-  RETRY_DELAY_MS: 2000
+  RETRY_DELAY_MS: 2000,
+
+  // ── Debug ─────────────────────────────────────────────
+  DEBUG_MODE: true,
+  DEBUG_LOG: []
 };
 
 // Make CONFIG available in both service worker and content script contexts

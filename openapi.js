@@ -41,10 +41,10 @@ function buildOpenApiRequest(imageBase64, settings, systemPrompt) {
               items: {
                 type: "object",
                 properties: {
-                  x_1000: { type: "number" },
-                  y_1000: { type: "number" },
-                  width_1000: { type: "number" },
-                  height_1000: { type: "number" },
+                  box_xmin_1000: { type: "number" },
+                  box_ymin_1000: { type: "number" },
+                  box_xmax_1000: { type: "number" },
+                  box_ymax_1000: { type: "number" },
                   fromLang: {
                     type: "object",
                     properties: {
@@ -64,7 +64,7 @@ function buildOpenApiRequest(imageBase64, settings, systemPrompt) {
                     additionalProperties: false
                   }
                 },
-                required: ["x_1000", "y_1000", "width_1000", "height_1000", "fromLang", "toLang"],
+                required: ["box_xmin_1000", "box_ymin_1000", "box_xmax_1000", "box_ymax_1000", "fromLang", "toLang"],
                 additionalProperties: false
               }
             }
