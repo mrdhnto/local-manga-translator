@@ -3,7 +3,7 @@
  * Handles LLM API communication, connection testing, and error logging.
  */
 
-importScripts("config.js", "openapi.js", "lm_studio.js");
+importScripts("config.js", "openapi.js", "lmstudio.js");
 
 // ── Helpers ─────────────────────────────────────────────────
 
@@ -138,7 +138,7 @@ async function callLLMApi(imageBase64, settings, retryCount = 0) {
   let endpoint = settings.apiEndpoint;
   
   // If the endpoint is still the default OpenAPI one but we are using LM Studio, auto-switch it.
-  if (settings.apiSchema === "lm_studio") {
+  if (settings.apiSchema === "lmstudio") {
     endpoint = settings.apiEndpointLmStudio;
   } else if (settings.apiSchema === "openapi") {
     endpoint = settings.apiEndpointOpenApi;
@@ -150,7 +150,7 @@ async function callLLMApi(imageBase64, settings, retryCount = 0) {
   const systemPrompt = buildSystemPrompt(settings);
 
   let body;
-  if (settings.apiSchema === "lm_studio") {
+  if (settings.apiSchema === "lmstudio") {
     body = buildLmStudioRequest(imageBase64, settings, systemPrompt);
   } else {
     body = buildOpenApiRequest(imageBase64, settings, systemPrompt);
@@ -173,7 +173,7 @@ async function callLLMApi(imageBase64, settings, retryCount = 0) {
     const data = await response.json();
     let content;
 
-    if (settings.apiSchema === "lm_studio") {
+    if (settings.apiSchema === "lmstudio") {
       // Extract from LM Studio's native response format
       content = data.output?.[0]?.content;
     } else {

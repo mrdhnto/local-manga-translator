@@ -226,7 +226,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 
   function updateHostPlaceholder() {
-    if (apiSchema.value === "lm_studio") {
+    if (apiSchema.value === "lmstudio") {
       apiHost.placeholder = "http://127.0.0.1:1234/api/v1";
     } else {
       apiHost.placeholder = "http://127.0.0.1:1234/v1";

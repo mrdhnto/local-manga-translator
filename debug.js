@@ -1,5 +1,5 @@
 /**
- * Debug Utilities — separated to keep content.js clean.
+ * Debug Utilities — Log and Save API Calls, Metadata, and Responses.
  */
 (function() {
   "use strict";
@@ -21,7 +21,7 @@
             imageHeight: img.naturalHeight,
             apiSchema: settings.apiSchema,
             apiHost: settings.apiHost,
-            apiEndpoint: settings.apiSchema === "lm_studio" ? settings.apiEndpointLmStudio : settings.apiEndpointOpenApi,
+            apiEndpoint: settings.apiSchema === "lmstudio" ? settings.apiEndpointLmStudio : settings.apiEndpointOpenApi,
             model: settings.model,
             translateFrom: settings.translateFrom,
             translateTo: settings.translateTo

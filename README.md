@@ -15,6 +15,8 @@ Local Manga Translator is an experimental Chrome extension designed to bring sea
 - **Smart Queueing**: Automatically detects manga-sized images and translates them sequentially, prioritizing the largest panels first.
 - **Customizable Aesthetics**: Choose your preferred manga fonts and adjust font sizes for the best reading experience.
 - **Hover to Compare**: Hover over any translated region to see the original source text.
+- **Configurable Image Filtering**: Set minimum width and height thresholds directly from the popup to exclude small UI elements from translation.
+- **Advanced Debugging**: Built-in debug modal to trace API requests, metadata, and responses in real-time with JSON export capabilities.
 
 ---
 
@@ -51,7 +53,18 @@ If you prefer Ollama or a custom OpenAI-compatible proxy:
 - **`background.js`**: The brains of the operation. Handles API communication, connection testing, and schema mapping.
 - **`content.js`**: Watches the page for images, identifies manga panels, and renders the translation overlays.
 - **`config.js`**: Centralized configuration for default languages, fonts, and API paths.
-- **`lm_studio.js` / `openapi.js`**: Schema-specific payload builders to ensure compatibility with different local servers.
+- **`debug.js`**: Dedicated script for the robust debug modal, handling session data logging and UI independently from core logic.
+- **`popup.js` & `popup.html`**: The extension interface for toggling the service, configuring API endpoints, setting image size thresholds, and adjusting text aesthetics.
+- **`lmstudio.js` / `openapi.js`**: Schema-specific payload builders to ensure compatibility with different local servers.
+
+---
+
+## 🧪 Test Images
+
+You can use the following sample images to test the extension's text detection and translation features directly in your browser:
+
+- [English Text Sample](https://i.sstatic.net/YjY3d.jpg)
+- [Japanese Text Sample](https://i.sstatic.net/eLMHJ.jpg)
 
 ---
 
