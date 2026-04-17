@@ -6,24 +6,26 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   // ── DOM Elements ──────────────────────────────────────────
 
-  const toggleEnabled    = document.getElementById("toggle-enabled");
-  const statusDot        = document.getElementById("status-dot");
-  const statusText       = document.getElementById("status-text");
-  const btnTestConn      = document.getElementById("btn-test-connection");
-  const apiSchema        = document.getElementById("api-schema");
-  const apiHost          = document.getElementById("api-host");
-  const apiModel         = document.getElementById("api-model");
-  const translateFrom    = document.getElementById("translate-from");
-  const translateTo      = document.getElementById("translate-to");
-  const fontFamily       = document.getElementById("font-family");
-  const fontSizeSlider   = document.getElementById("font-size-slider");
-  const fontSizeValue    = document.getElementById("font-size-value");
-  const minImageWidth    = document.getElementById("min-image-width");
-  const minImageHeight   = document.getElementById("min-image-height");
-  const btnTranslatePage = document.getElementById("btn-translate-page");
-  const btnClearLog      = document.getElementById("btn-clear-log");
-  const btnDebugModal    = document.getElementById("btn-debug-modal");
-  const errorLogEl       = document.getElementById("error-log");
+  const toggleEnabled      = document.getElementById("toggle-enabled");
+  const statusDot          = document.getElementById("status-dot");
+  const statusText         = document.getElementById("status-text");
+  const btnTestConn        = document.getElementById("btn-test-connection");
+  const apiSchema          = document.getElementById("api-schema");
+  const apiHost            = document.getElementById("api-host");
+  const apiModel           = document.getElementById("api-model");
+  const translateFrom      = document.getElementById("translate-from");
+  const translateTo        = document.getElementById("translate-to");
+  const fontFamily         = document.getElementById("font-family");
+  const fontSizeSlider     = document.getElementById("font-size-slider");
+  const fontSizeValue      = document.getElementById("font-size-value");
+  const minImageWidth      = document.getElementById("min-image-width");
+  const minImageHeight     = document.getElementById("min-image-height");
+  const toggleDebugMode    = document.getElementById("toggle-debug-mode");
+  const toggleOverlayPanel = document.getElementById("toggle-overlay-panel");
+  const btnTranslatePage   = document.getElementById("btn-translate-page");
+  const btnClearLog        = document.getElementById("btn-clear-log");
+  const btnDebugModal      = document.getElementById("btn-debug-modal");
+  const errorLogEl         = document.getElementById("error-log");
 
   // ── Collapsible Sections ──────────────────────────────────
 
@@ -59,12 +61,27 @@ document.addEventListener("DOMContentLoaded", async () => {
     const fontSize = parseInt(settings.defaultFontSize) || parseInt(CONFIG.DEFAULT_FONT_SIZE);
     fontSizeSlider.value       = fontSize;
     fontSizeValue.textContent  = fontSize + "px";
+
+    // Preferences toggles
+    toggleDebugMode.checked    = settings.debugMode !== undefined ? settings.debugMode : CONFIG.DEBUG_MODE;
+    toggleOverlayPanel.checked = settings.showOverlayPanel !== undefined ? settings.showOverlayPanel : CONFIG.SHOW_OVERLAY_PANEL;
+
+    // Apply debug mode visibility
+    updateDebugVisibility(toggleDebugMode.checked);
   }
 
   // ── Save Settings ─────────────────────────────────────────
 
   async function saveSetting(key, value) {
     await chrome.storage.sync.set({ [key]: value });
+  }
+
+  // ── Debug Visibility ──────────────────────────────────────
+
+  function updateDebugVisibility(enabled) {
+    if (btnDebugModal) {
+      btnDebugModal.style.display = enabled ? "" : "none";
+    }
   }
 
   // ── Auto-Save Handlers ────────────────────────────────────
@@ -102,6 +119,28 @@ document.addEventListener("DOMContentLoaded", async () => {
   });
   fontSizeSlider.addEventListener("change", () => {
     saveSetting("defaultFontSize", fontSizeSlider.value + "px");
+  });
+
+  // ── Preference Toggles ────────────────────────────────────
+
+  toggleDebugMode.addEventListener("change", async () => {
+    const enabled = toggleDebugMode.checked;
+    await saveSetting("debugMode", enabled);
+    updateDebugVisibility(enabled);
+  });
+
+  toggleOverlayPanel.addEventListener("change", async () => {
+    const enabled = toggleOverlayPanel.checked;
+    await saveSetting("showOverlayPanel", enabled);
+
+    // Notify active tab to show/hide overlay cog
+    const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+    if (tab?.id) {
+      chrome.tabs.sendMessage(tab.id, {
+        action: "toggleOverlayPanel",
+        enabled: enabled
+      }).catch(() => {});
+    }
   });
 
   // ── Test Connection ───────────────────────────────────────
@@ -192,20 +231,16 @@ document.addEventListener("DOMContentLoaded", async () => {
   });
 
   if (btnDebugModal) {
-    if (!CONFIG.DEBUG_MODE) {
-      btnDebugModal.style.display = 'none';
-    } else {
-      btnDebugModal.addEventListener("click", async () => {
-        try {
-          const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-          if (tab?.id) {
-            await chrome.tabs.sendMessage(tab.id, { action: "openDebugModal" });
-          }
-        } catch (err) {
-          console.error("Failed to open debug modal:", err);
+    btnDebugModal.addEventListener("click", async () => {
+      try {
+        const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+        if (tab?.id) {
+          await chrome.tabs.sendMessage(tab.id, { action: "openDebugModal" });
         }
-      });
-    }
+      } catch (err) {
+        console.error("Failed to open debug modal:", err);
+      }
+    });
   }
 
   // ── Helpers ────────────────────────────────────────────────

@@ -12,7 +12,7 @@ function buildLmStudioRequest(imageBase64, settings, systemPrompt) {
       }
     ],
     system_prompt: systemPrompt,
-    temperature: 0.8,
+    temperature: 0.3,
     top_p: 0.95,
     top_k: 40,
     min_p: 0.05,

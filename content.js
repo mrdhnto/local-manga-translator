@@ -154,15 +154,95 @@
 
   // ── Translation Overlay Rendering ───────────────────────────
 
+  /**
+   * Compute pixel box from a region's 1000-point coordinates.
+   */
+  function computeBox(region, displayWidth, displayHeight, img) {
+    if (region.box_xmin_1000 !== undefined) {
+      return {
+        left:   (region.box_xmin_1000 / 1000) * displayWidth,
+        top:    (region.box_ymin_1000 / 1000) * displayHeight,
+        width:  ((region.box_xmax_1000 - region.box_xmin_1000) / 1000) * displayWidth,
+        height: ((region.box_ymax_1000 - region.box_ymin_1000) / 1000) * displayHeight
+      };
+    }
+    if (region.x_1000 !== undefined) {
+      const cx = region.x_1000, cy = region.y_1000;
+      const w = region.width_1000, h = region.height_1000;
+      const left = (cx + w > 1050) ? ((cx - w / 2) / 1000) * displayWidth : (cx / 1000) * displayWidth;
+      return { left, top: (cy / 1000) * displayHeight, width: (w / 1000) * displayWidth, height: (h / 1000) * displayHeight };
+    }
+    if (region.x_percent !== undefined) {
+      return {
+        left:   (region.x_percent / 100) * displayWidth,
+        top:    (region.y_percent / 100) * displayHeight,
+        width:  (region.width_percent / 100) * displayWidth,
+        height: (region.height_percent / 100) * displayHeight
+      };
+    }
+    const imgW = region.imgWidth || img.naturalWidth;
+    const imgH = region.imgHeight || img.naturalHeight;
+    const sx = displayWidth / imgW, sy = displayHeight / imgH;
+    return { left: region.x * sx, top: region.y * sy, width: region.width * sx, height: region.height * sy };
+  }
+
+  /**
+   * Apply positioning and font-scaling to a region element based on its bounding box.
+   */
+  function applyRegionStyle(regionEl, box, displayWidth, settings) {
+    // Clamp position so the box doesn't render outside the image
+    const left = Math.max(0, Math.min(box.left, displayWidth - 20));
+    const top  = Math.max(0, box.top);
+
+    // Use the actual bounding box dimensions as the container size.
+    // Add horizontal padding to allow slightly wider boxes for translated text
+    // (translations from CJK → English typically need more horizontal space).
+    const expandedWidth = Math.max(box.width * 1.3, 60);
+
+    regionEl.style.left   = left + "px";
+    regionEl.style.top    = top + "px";
+    regionEl.style.width  = expandedWidth + "px";
+    regionEl.style.height = box.height + "px";
+
+    // Font settings
+    const fontKey = settings.defaultFont || CONFIG.DEFAULT_FONT;
+    const fontInfo = CONFIG.FONTS[fontKey];
+    const fontFamily = fontInfo ? fontInfo.family : "sans-serif";
+    const baseFontSize = parseInt(settings.defaultFontSize || CONFIG.DEFAULT_FONT_SIZE, 10) || 16;
+
+    regionEl.style.fontFamily = `"${fontFamily}", sans-serif`;
+
+    // Auto-scale: shrink font if the text is too long for the bounding box area.
+    // Estimate: average character width is ~0.6 × font size, line height ~1.35.
+    const text = regionEl.textContent || "";
+    const areaAvailable = expandedWidth * box.height;
+    const charsPerLine = Math.max(1, Math.floor(expandedWidth / (baseFontSize * 0.55)));
+    const linesNeeded = Math.ceil(text.length / charsPerLine);
+    const heightNeeded = linesNeeded * baseFontSize * 1.35;
+
+    let fontSize = baseFontSize;
+    if (heightNeeded > box.height && box.height > 10) {
+      // Scale down proportionally, with a floor of 9px
+      fontSize = Math.max(9, Math.floor(baseFontSize * (box.height / heightNeeded)));
+    }
+
+    regionEl.style.fontSize = fontSize + "px";
+  }
+
   function renderTranslationOverlay(wrapper, img, regions, settings) {
     // Remove previous translation overlay
     const existing = wrapper.querySelector(`.${OVERLAY_CLASS}`);
     if (existing) existing.remove();
 
+    // Run region post-processor to fix/merge/deduplicate LLM output
+    if (window.MangaTLRegionProcessor) {
+      regions = window.MangaTLRegionProcessor.processRegions(regions);
+    }
+
     const overlay = document.createElement("div");
     overlay.classList.add(OVERLAY_CLASS);
 
-    // Store region data for resize recalculation
+    // Store processed region data for resize recalculation
     overlay.__mangaTLRegions = regions;
     overlay.__mangaTLSettings = settings;
 
@@ -175,89 +255,18 @@
       regionEl.classList.add(REGION_CLASS);
       regionEl.setAttribute("data-region-index", index);
 
-      // Support both new box_ coordinates and fallback backward compatibility
-      let boxLeft, boxTop, boxWidth, boxHeight;
+      const box = computeBox(region, displayWidth, displayHeight, img);
 
-      if (region.box_xmin_1000 !== undefined) {
-        boxLeft = (region.box_xmin_1000 / 1000) * displayWidth;
-        boxTop = (region.box_ymin_1000 / 1000) * displayHeight;
-        boxWidth = ((region.box_xmax_1000 - region.box_xmin_1000) / 1000) * displayWidth;
-        boxHeight = ((region.box_ymax_1000 - region.box_ymin_1000) / 1000) * displayHeight;
-      } else if (region.x_1000 !== undefined) {
-        // Fallback for older model payload logic that used x_1000, y_1000
-        const cx = region.x_1000;
-        const cy = region.y_1000;
-        const w = region.width_1000;
-        const h = region.height_1000;
-        // Adjust for common error where model passed center as x,y
-        if (cx + w > 1050) {
-           boxLeft = ((cx - w/2) / 1000) * displayWidth;
-        } else {
-           boxLeft = (cx / 1000) * displayWidth;
-        }
-        boxTop = (cy / 1000) * displayHeight;
-        boxWidth = (w / 1000) * displayWidth;
-        boxHeight = (h / 1000) * displayHeight;
-      } else if (region.x_percent !== undefined) {
-        boxLeft = (region.x_percent / 100) * displayWidth;
-        boxTop = (region.y_percent / 100) * displayHeight;
-        boxWidth = (region.width_percent / 100) * displayWidth;
-        boxHeight = (region.height_percent / 100) * displayHeight;
-      } else {
-        const imgWidth = region.imgWidth || img.naturalWidth;
-        const imgHeight = region.imgHeight || img.naturalHeight;
-        const scaleX = displayWidth / imgWidth;
-        const scaleY = displayHeight / imgHeight;
-        boxLeft = region.x * scaleX;
-        boxTop = region.y * scaleY;
-        boxWidth = region.width * scaleX;
-        boxHeight = region.height * scaleY;
-      }
-
-      // Optimize text rendering position dynamically
-      // Draw translated text anchored at the *center* of the detected bounding box,
-      // avoiding narrow wrapping for vertical Japanese text.
-      const centerX = boxLeft + (boxWidth / 2);
-      const centerY = boxTop + (boxHeight / 2);
-      
-      regionEl.style.left = centerX + "px";
-      regionEl.style.top = centerY + "px";
-      regionEl.style.transform = "translate(-50%, -50%)";
-      
-      // Calculate a safe max container width to prevent text from overflowing the image
-      const paddingH = 30; // 15px max safe padding each side
-      const safeMaxWidth = Math.max(
-        100, 
-        Math.min(
-          boxWidth * 1.5, // Allow the box to expand horizontally slightly compared to original vertical text
-          (displayWidth - centerX) * 2 - paddingH, 
-          centerX * 2 - paddingH,
-          300 // Absolute max width for manga bubbles
-        )
-      );
-      
-      regionEl.style.maxWidth = safeMaxWidth + "px";
-      regionEl.style.width = "max-content";
-      
-      // We no longer strictly bound height, let text flow naturally
-      regionEl.style.minHeight = Math.min(boxHeight, 40) + "px";
-
-      // Font settings
-      const fontKey = settings.defaultFont || CONFIG.DEFAULT_FONT;
-      const fontInfo = CONFIG.FONTS[fontKey];
-      const fontFamily = fontInfo ? fontInfo.family : "sans-serif";
-      const fontSize = settings.defaultFontSize || CONFIG.DEFAULT_FONT_SIZE;
-
-      regionEl.style.fontFamily = `"${fontFamily}", sans-serif`;
-      regionEl.style.fontSize = fontSize;
-
-      // Set translated text
+      // Set translated text first (needed for font-size calculation)
       const translatedText = region.toLang?.text || region.toLang?.script || region.translated_text || "";
       regionEl.textContent = translatedText;
 
       // Tooltip with original text
       const originalText = region.fromLang?.text || region.fromLang?.script || region.original_text || "";
       regionEl.title = `Original: ${originalText}`;
+
+      // Apply positioning, sizing, and auto-scaled font
+      applyRegionStyle(regionEl, box, displayWidth, settings);
 
       // Animation delay for staggered fade-in
       regionEl.style.animationDelay = (index * 0.05) + "s";
@@ -454,6 +463,7 @@
       const displayWidth = img.offsetWidth;
       const displayHeight = img.offsetHeight;
       const regions = overlay.__mangaTLRegions;
+      const settings = overlay.__mangaTLSettings || {};
 
       if (!regions) return;
 
@@ -462,62 +472,8 @@
         const region = regions[idx];
         if (!region) return;
 
-        let boxLeft, boxTop, boxWidth, boxHeight;
-        
-        if (region.box_xmin_1000 !== undefined) {
-          boxLeft = (region.box_xmin_1000 / 1000) * displayWidth;
-          boxTop = (region.box_ymin_1000 / 1000) * displayHeight;
-          boxWidth = ((region.box_xmax_1000 - region.box_xmin_1000) / 1000) * displayWidth;
-          boxHeight = ((region.box_ymax_1000 - region.box_ymin_1000) / 1000) * displayHeight;
-        } else if (region.x_1000 !== undefined) {
-          const cx = region.x_1000;
-          const cy = region.y_1000;
-          const w = region.width_1000;
-          const h = region.height_1000;
-          if (cx + w > 1050) {
-             boxLeft = ((cx - w/2) / 1000) * displayWidth;
-          } else {
-             boxLeft = (cx / 1000) * displayWidth;
-          }
-          boxTop = (cy / 1000) * displayHeight;
-          boxWidth = (w / 1000) * displayWidth;
-          boxHeight = (h / 1000) * displayHeight;
-        } else if (region.x_percent !== undefined) {
-          boxLeft = (region.x_percent / 100) * displayWidth;
-          boxTop = (region.y_percent / 100) * displayHeight;
-          boxWidth = (region.width_percent / 100) * displayWidth;
-          boxHeight = (region.height_percent / 100) * displayHeight;
-        } else {
-          const imgWidth = region.imgWidth || img.naturalWidth;
-          const imgHeight = region.imgHeight || img.naturalHeight;
-          const scaleX = displayWidth / imgWidth;
-          const scaleY = displayHeight / imgHeight;
-          boxLeft = region.x * scaleX;
-          boxTop = region.y * scaleY;
-          boxWidth = region.width * scaleX;
-          boxHeight = region.height * scaleY;
-        }
-
-        const centerX = boxLeft + (boxWidth / 2);
-        const centerY = boxTop + (boxHeight / 2);
-        
-        regionEl.style.left = centerX + "px";
-        regionEl.style.top = centerY + "px";
-        regionEl.style.transform = "translate(-50%, -50%)";
-        
-        const paddingH = 30;
-        const safeMaxWidth = Math.max(
-          100, 
-          Math.min(
-            boxWidth * 1.5, 
-            (displayWidth - centerX) * 2 - paddingH, 
-            centerX * 2 - paddingH,
-            300
-          )
-        );
-        regionEl.style.maxWidth = safeMaxWidth + "px";
-        regionEl.style.width = "max-content";
-        regionEl.style.minHeight = Math.min(boxHeight, 40) + "px";
+        const box = computeBox(region, displayWidth, displayHeight, img);
+        applyRegionStyle(regionEl, box, displayWidth, settings);
       });
     });
   }
@@ -568,9 +524,28 @@
         }
         sendResponse({ success: true });
         break;
+
+      case "toggleOverlayPanel":
+        if (window.MangaTLOverlay) {
+          window.MangaTLOverlay.setCogVisible(request.enabled);
+        }
+        sendResponse({ success: true });
+        break;
     }
     return true;
   });
+
+  // ── Expose for Overlay Panel ───────────────────────────────
+  // The overlay panel runs in the same content script context,
+  // so it can call these directly.
+
+  window.__mangaTLTranslatePage = function () {
+    document.querySelectorAll(`[${PROCESSED_ATTR}]`).forEach(el => {
+      el.removeAttribute(PROCESSED_ATTR);
+    });
+    removeAllOverlays();
+    scanAndTranslate();
+  };
 
 
 

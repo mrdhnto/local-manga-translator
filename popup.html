@@ -38,13 +38,13 @@
       </button>
     </section>
 
-    <!-- API Settings -->
+    <!-- API Settings (collapsed by default) -->
     <section class="section">
       <div class="section-header">
         <span class="section-title">API Settings</span>
-        <button class="collapse-btn" data-target="api-settings-body">▾</button>
+        <button class="collapse-btn collapsed" data-target="api-settings-body">▾</button>
       </div>
-      <div class="section-body" id="api-settings-body">
+      <div class="section-body" id="api-settings-body" style="max-height: 0px; overflow: hidden;">
         <div class="form-group">
           <label for="api-schema">API Schema</label>
           <select id="api-schema">
@@ -96,13 +96,29 @@
       </div>
     </section>
 
-    <!-- Image Settings -->
+    <!-- Display Settings -->
     <section class="section">
       <div class="section-header">
-        <span class="section-title">Minimum Image Size</span>
+        <span class="section-title">Display</span>
       </div>
       <div class="section-body">
         <div class="form-row">
+          <div class="form-group flex-1">
+            <label for="font-family">Font</label>
+            <select id="font-family">
+              <option value="cc-wild-words">CC Wild Words</option>
+              <option value="komikah">Komikah</option>
+            </select>
+          </div>
+          <div class="form-group" style="width: 90px;">
+            <label for="font-size-slider">Size</label>
+            <div class="font-size-control">
+              <input type="range" id="font-size-slider" min="8" max="32" value="16" step="1">
+              <span class="font-size-value" id="font-size-value">16px</span>
+            </div>
+          </div>
+        </div>
+        <div class="form-row" style="margin-top: 4px;">
           <div class="form-group flex-1">
             <label for="min-image-width">Min Width (px)</label>
             <input type="number" id="min-image-width" placeholder="300" min="0" step="10">
@@ -116,27 +132,31 @@
       </div>
     </section>
 
-    <!-- Font Settings -->
+    <!-- Preferences -->
     <section class="section">
       <div class="section-header">
-        <span class="section-title">Font</span>
+        <span class="section-title">Preferences</span>
       </div>
       <div class="section-body">
-        <div class="form-row">
-          <div class="form-group flex-1">
-            <label for="font-family">Family</label>
-            <select id="font-family">
-              <option value="cc-wild-words">CC Wild Words</option>
-              <option value="komikah">Komikah</option>
-            </select>
+        <div class="pref-row">
+          <div class="pref-info">
+            <span class="pref-label">Debug Mode</span>
+            <span class="pref-desc">Show debug tools & log API calls</span>
           </div>
-          <div class="form-group" style="width: 90px;">
-            <label for="font-size">Size</label>
-            <div class="font-size-control">
-              <input type="range" id="font-size-slider" min="8" max="32" value="16" step="1">
-              <span class="font-size-value" id="font-size-value">16px</span>
-            </div>
+          <label class="toggle-switch toggle-sm" title="Enable debug mode">
+            <input type="checkbox" id="toggle-debug-mode">
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+        <div class="pref-row">
+          <div class="pref-info">
+            <span class="pref-label">On-Screen Panel</span>
+            <span class="pref-desc">Show settings cog on webpages</span>
           </div>
+          <label class="toggle-switch toggle-sm" title="Show on-screen config panel">
+            <input type="checkbox" id="toggle-overlay-panel">
+            <span class="toggle-slider"></span>
+          </label>
         </div>
       </div>
     </section>

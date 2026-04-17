@@ -13,10 +13,13 @@ Local Manga Translator is an experimental Chrome extension designed to bring sea
 - **Local & Private**: Connects to your own self-hosted LLM (Ollama, LM Studio, etc.).
 - **Dual Schema Support**: Switch between standard **OpenAPI** (OpenAI compatible) and **LM Studio** experimental endpoints.
 - **Smart Queueing**: Automatically detects manga-sized images and translates them sequentially, prioritizing the largest panels first.
+- **Smart Region Post-Processing**: Intelligently merges fragmented text fragments, fixes inverted coordinates, and deduplicates overlap to ensure clean speech bubble overlays.
+- **Responsive Layout**: Overlays automatically re-calculate and re-position on window resize, maintaining accuracy across all screen sizes.
+- **On-Screen Control**: A subtle settings cog injected onto webpages for quick translation toggles and quick access to extension features.
 - **Customizable Aesthetics**: Choose your preferred manga fonts and adjust font sizes for the best reading experience.
 - **Hover to Compare**: Hover over any translated region to see the original source text.
 - **Configurable Image Filtering**: Set minimum width and height thresholds directly from the popup to exclude small UI elements from translation.
-- **Advanced Debugging**: Built-in debug modal to trace API requests, metadata, and responses in real-time with JSON export capabilities.
+- **Advanced Debugging**: Robust debug modal with JSON export, clipboard copying, and detailed metadata tracking for every API request.
 
 ---
 
@@ -51,11 +54,13 @@ If you prefer Ollama or a custom OpenAI-compatible proxy:
 ## 🧩 Extension Components
 
 - **`background.js`**: The brains of the operation. Handles API communication, connection testing, and schema mapping.
-- **`content.js`**: Watches the page for images, identifies manga panels, and renders the translation overlays.
-- **`config.js`**: Centralized configuration for default languages, fonts, and API paths.
-- **`debug.js`**: Dedicated script for the robust debug modal, handling session data logging and UI independently from core logic.
-- **`popup.js` & `popup.html`**: The extension interface for toggling the service, configuring API endpoints, setting image size thresholds, and adjusting text aesthetics.
-- **`lmstudio.js` / `openapi.js`**: Schema-specific payload builders to ensure compatibility with different local servers.
+- **`content.js`**: Watches the page for images, identifies manga panels, and manages the translation rendering lifecycle.
+- **`region-processor.js`**: A deep-processing pipeline that validates LLM output, merges fragmented character boxes, and fixes coordinate hallucinations.
+- **`config.js`**: Centralized configuration for default languages, fonts, and system-wide thresholds.
+- **`debug.js`**: Dedicated script for the robust debug modal, handling session logging and JSON export independently from core logic.
+- **`overlay-panel.js`**: Implements the interactive on-screen settings cog and quick translation controls.
+- **`popup.js` & `popup.html`**: The main interface for configuring API endpoints, language pairs, and visual preferences.
+- **`lmstudio.js` / `openapi.js`**: Schema-specific payload builders and response parsers for different local LLM backends.
 
 ---
 
@@ -71,8 +76,11 @@ You can use the following sample images to test the extension's text detection a
 ## 🚧 Roadmap & Limitations
 
 - [ ] **Text Inpainting**: Removing original Japanese text to provide a "scanlation" quality look.
-- [ ] **Performance Optimization**: Improving the speed of image base64 conversion and LLM inference.
+- [x] **Performance Optimization**: Implemented JPEG conversion and intelligent downscaling (2048px) to minimize payload size and inference time.
 - [ ] **Expanded Model Support**: Optimized prompts for a wider variety of local Vision models.
+- [ ] **Add Openapi Online API Support**: Add support for online openapi API with your BYOT API Key (e.g. DeepSeek, Grok, Openrouter, etc.)
+- [ ] **Add Horde AI Support**: Add support for Horde AI to translate text from images.
+- [ ] **Add OCR Support**: Add support for OCR to extract text from images.
 
 ---
 

@@ -22,7 +22,9 @@ async function getSettings() {
     translateTo:   stored.translateTo   || CONFIG.TRANSLATE_TO,
     defaultFont:   stored.defaultFont   || CONFIG.DEFAULT_FONT,
     defaultFontSize: stored.defaultFontSize || CONFIG.DEFAULT_FONT_SIZE,
-    enabled:       stored.enabled !== undefined ? stored.enabled : true
+    enabled:       stored.enabled !== undefined ? stored.enabled : true,
+    showOverlayPanel: stored.showOverlayPanel !== undefined ? stored.showOverlayPanel : CONFIG.SHOW_OVERLAY_PANEL,
+    debugMode:     stored.debugMode !== undefined ? stored.debugMode : CONFIG.DEBUG_MODE
   };
 }
 
@@ -61,42 +63,21 @@ function buildSystemPrompt(settings) {
   const toCode = getLangCode(settings.translateTo);
   const fontName = settings.defaultFont;
 
-  return `You are a manga/comic translation assistant. You receive an image of a manga page or panel.
+  return `You are an expert manga translator fluent in ${fromLang} and ${toLang}, skilled in idiomatic expressions, onomatopoeia, tonal register, and vertical text conventions. You receive a manga page image.
 
-Your task:
-1. Identify ALL text regions in the image (speech bubbles, captions, sound effects, narration boxes, etc.)
-2. For each text region, extract the original text and translate it from ${fromLang} to ${toLang}.
-3. Estimate the bounding box of each text region using a 1000-point scale (0 to 1000) relative to the full image dimensions.
+Task: Identify all text regions (speech bubbles, captions, SFX, narration). For each, extract the full original text, translate it, and estimate the bounding box on a 1000-point scale (0-1000).
 
-Return ONLY valid JSON with no markdown fences, no commentary, no extra text. Use this exact structure:
+IMPORTANT: One speech bubble = ONE region. Never split a bubble into individual characters. Group all text within a single bubble (including multi-line or vertical columns) as one region. Aim for 3-15 regions per page.
 
-{
-  "regions": [
-    {
-      "box_xmin_1000": <number, left edge (0-1000)>,
-      "box_ymin_1000": <number, top edge (0-1000)>,
-      "box_xmax_1000": <number, right edge (0-1000)>,
-      "box_ymax_1000": <number, bottom edge (0-1000)>,
-      "fromLang": {
-        "code": "${fromCode}",
-        "text": "<original text>"
-      },
-      "toLang": {
-        "code": "${toCode}",
-        "text": "<translated text>"
-      }
-    }
-  ]
-}
+Return ONLY valid JSON:
+{"regions":[{"box_xmin_1000":<left 0-1000>,"box_ymin_1000":<top 0-1000>,"box_xmax_1000":<right 0-1000>,"box_ymax_1000":<bottom 0-1000>,"fromLang":{"code":"${fromCode}","text":"<original>"},"toLang":{"code":"${toCode}","text":"<translated>"}}]}
 
 Rules:
-- Coordinates are on the 1000-point scale (0 is top-left, 1000 is bottom-right).
-- Ensure box_xmin_1000 < box_xmax_1000 and box_ymin_1000 < box_ymax_1000.
-- Preserve special characters, emojis, hearts (♡), and sound effects in translations.
-- If the source language is "Auto Detect", identify the language yourself and set fromLang.code accordingly.
-- If text is vertical (common in Japanese manga), still provide the bounding box that encompasses all the vertical text.
-- If no text is found in the image, return: { "regions": [] }
-- Return ONLY the JSON object. No explanation, no markdown.`;
+- box_xmin_1000 < box_xmax_1000 and box_ymin_1000 < box_ymax_1000.
+- Preserve SFX, emojis, special characters in translations.
+- If source is "Auto Detect", identify the language and set fromLang.code.
+- If no text found, return {"regions":[]}.
+- No markdown, no explanation. JSON only.`;
 }
 
 // ── Payload Truncation Helper ───────────────────────────────
@@ -329,7 +310,9 @@ chrome.runtime.onInstalled.addListener(async (details) => {
       translateTo: CONFIG.TRANSLATE_TO,
       defaultFont: CONFIG.DEFAULT_FONT,
       defaultFontSize: CONFIG.DEFAULT_FONT_SIZE,
-      enabled: true
+      enabled: true,
+      showOverlayPanel: CONFIG.SHOW_OVERLAY_PANEL,
+      debugMode: CONFIG.DEBUG_MODE
     });
     console.log("[MangaTL] Extension installed with default settings.");
   }

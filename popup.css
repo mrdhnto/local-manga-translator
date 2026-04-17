@@ -295,6 +295,85 @@ body::-webkit-scrollbar-thumb {
   flex: 1;
 }
 
+/* ── Number Input ──────────────────────────────────────────── */
+.form-group input[type="number"] {
+  width: 100%;
+  padding: 7px 10px;
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  font-size: 12px;
+  font-family: "Cascadia Code", "Fira Code", monospace;
+  transition: border-color var(--transition);
+  outline: none;
+  -moz-appearance: textfield;
+}
+
+.form-group input[type="number"]:focus {
+  border-color: var(--border-focus);
+  box-shadow: 0 0 0 2px rgba(124, 58, 237, 0.1);
+}
+
+.form-group input[type="number"]::-webkit-inner-spin-button,
+.form-group input[type="number"]::-webkit-outer-spin-button {
+  opacity: 0.5;
+}
+
+/* ── Preference Rows ───────────────────────────────────────── */
+.pref-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 0;
+  border-bottom: 1px solid rgba(42, 42, 74, 0.3);
+}
+
+.pref-row:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.pref-row:first-child {
+  padding-top: 0;
+}
+
+.pref-info {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.pref-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.pref-desc {
+  font-size: 10px;
+  color: var(--text-muted);
+  font-weight: 400;
+}
+
+/* ── Small Toggle ──────────────────────────────────────────── */
+.toggle-sm {
+  width: 36px;
+  height: 20px;
+  flex-shrink: 0;
+}
+
+.toggle-sm .toggle-slider::before {
+  width: 14px;
+  height: 14px;
+  left: 3px;
+  bottom: 3px;
+}
+
+.toggle-sm input:checked + .toggle-slider::before {
+  transform: translateX(16px);
+}
+
 /* ── Font Size Control ─────────────────────────────────────── */
 .font-size-control {
   display: flex;

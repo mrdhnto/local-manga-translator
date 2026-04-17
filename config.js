@@ -51,6 +51,9 @@ const CONFIG = {
   MAX_RETRIES: 1,
   RETRY_DELAY_MS: 2000,
 
+  // ── Overlay Panel ───────────────────────────────────────
+  SHOW_OVERLAY_PANEL: true,
+
   // ── Debug ─────────────────────────────────────────────
   DEBUG_MODE: true,
   DEBUG_LOG: []

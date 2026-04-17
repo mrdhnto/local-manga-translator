@@ -22,7 +22,7 @@ function buildOpenApiRequest(imageBase64, settings, systemPrompt) {
         ]
       }
     ],
-    temperature: 0.8,
+    temperature: 0.3,
     top_p: 0.95,
     top_k: 40,
     min_p: 0.05,
