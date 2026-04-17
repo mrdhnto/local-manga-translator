@@ -21,7 +21,7 @@
             imageHeight: img.naturalHeight,
             apiSchema: settings.apiSchema,
             apiHost: settings.apiHost,
-            apiEndpoint: settings.apiSchema === "lmstudio" ? settings.apiEndpointLmStudio : settings.apiEndpointOpenApi,
+            apiEndpoint: settings.apiSchema === "lmstudio" ? settings.apiEndpointLmStudio : settings.apiEndpointOpenAI,
             model: settings.model,
             translateFrom: settings.translateFrom,
             translateTo: settings.translateTo

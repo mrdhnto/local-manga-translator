@@ -1,4 +1,4 @@
-function buildOpenApiRequest(imageBase64, settings, systemPrompt) {
+function buildOpenAIRequest(imageBase64, settings, systemPrompt) {
   return {
     model: settings.model,
     messages: [

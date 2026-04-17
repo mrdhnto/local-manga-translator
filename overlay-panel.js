@@ -87,7 +87,7 @@
             <div class="mtl-field">
               <label>Schema</label>
               <select id="mtl-api-schema">
-                <option value="openapi">OpenAPI (OpenAI Compatible)</option>
+                <option value="openai">OpenAI (OpenAI Compatible)</option>
                 <option value="lmstudio">LM Studio (Experimental)</option>
               </select>
             </div>

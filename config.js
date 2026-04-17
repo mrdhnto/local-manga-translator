@@ -5,9 +5,9 @@
 const CONFIG = {
   // ── API Settings ──────────────────────────────────────────
   API_HOST: "http://127.0.0.1:1234/api/v1",
-  API_ENDPOINT_OPENAPI: "chat/completions",
+  API_ENDPOINT_OPENAI: "chat/completions",
   API_ENDPOINT_LMSTUDIO: "chat",
-  API_SCHEMA: "lmstudio", // "openapi" or "lmstudio"
+  API_SCHEMA: "lmstudio", // "openai" or "lmstudio"
   MODEL: "qwen2.5-vl-7b-instruct",
 
   // ── Translation Defaults ──────────────────────────────────

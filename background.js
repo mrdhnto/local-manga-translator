@@ -3,7 +3,7 @@
  * Handles LLM API communication, connection testing, and error logging.
  */
 
-importScripts("config.js", "openapi.js", "lmstudio.js");
+importScripts("config.js", "openai.js", "lmstudio.js");
 
 // ── Helpers ─────────────────────────────────────────────────
 
@@ -14,7 +14,7 @@ async function getSettings() {
   const stored = await chrome.storage.sync.get(null);
   return {
     apiHost:       stored.apiHost       || CONFIG.API_HOST,
-    apiEndpointOpenApi:   stored.apiEndpointOpenApi   || CONFIG.API_ENDPOINT_OPENAPI,
+    apiEndpointOpenAI:   stored.apiEndpointOpenAI   || CONFIG.API_ENDPOINT_OPENAI,
     apiEndpointLmStudio:   stored.apiEndpointLmStudio   || CONFIG.API_ENDPOINT_LMSTUDIO,
     apiSchema:     stored.apiSchema     || CONFIG.API_SCHEMA,
     model:         stored.model         || CONFIG.MODEL,
@@ -86,7 +86,7 @@ function createTruncatedPayload(body) {
   let cleanPayload;
   try {
     cleanPayload = JSON.parse(JSON.stringify(body));
-    // For OpenAPI schema
+    // For OpenAI schema
     if (cleanPayload.messages) {
       for (let msg of cleanPayload.messages) {
         if (Array.isArray(msg.content)) {
@@ -118,11 +118,11 @@ async function callLLMApi(imageBase64, settings, retryCount = 0) {
   // Determine the correct endpoint based on the schema
   let endpoint = settings.apiEndpoint;
   
-  // If the endpoint is still the default OpenAPI one but we are using LM Studio, auto-switch it.
+  // If the endpoint is still the default OpenAI one but we are using LM Studio, auto-switch it.
   if (settings.apiSchema === "lmstudio") {
     endpoint = settings.apiEndpointLmStudio;
-  } else if (settings.apiSchema === "openapi") {
-    endpoint = settings.apiEndpointOpenApi;
+  } else if (settings.apiSchema === "openai") {
+    endpoint = settings.apiEndpointOpenAI;
   }
 
   // Ensure there's a slash between host and endpoint
@@ -134,7 +134,7 @@ async function callLLMApi(imageBase64, settings, retryCount = 0) {
   if (settings.apiSchema === "lmstudio") {
     body = buildLmStudioRequest(imageBase64, settings, systemPrompt);
   } else {
-    body = buildOpenApiRequest(imageBase64, settings, systemPrompt);
+    body = buildOpenAIRequest(imageBase64, settings, systemPrompt);
   }
 
   try {
@@ -158,7 +158,7 @@ async function callLLMApi(imageBase64, settings, retryCount = 0) {
       // Extract from LM Studio's native response format
       content = data.output?.[0]?.content;
     } else {
-      // Extract from standard OpenAI/OpenAPI response format
+      // Extract from standard OpenAI/OpenAI response format
       content = data.choices?.[0]?.message?.content;
     }
 
@@ -302,7 +302,7 @@ chrome.runtime.onInstalled.addListener(async (details) => {
     // Set initial defaults
     await chrome.storage.sync.set({
       apiHost: CONFIG.API_HOST,
-      apiEndpointOpenApi: CONFIG.API_ENDPOINT_OPENAPI,
+      apiEndpointOpenAI: CONFIG.API_ENDPOINT_OPENAI,
       apiEndpointLmStudio: CONFIG.API_ENDPOINT_LMSTUDIO,
       apiSchema: CONFIG.API_SCHEMA,
       model: CONFIG.MODEL,

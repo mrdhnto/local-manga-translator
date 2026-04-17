@@ -11,7 +11,7 @@ Local Manga Translator is an experimental Chrome extension designed to bring sea
 ## 🚀 Features
 
 - **Local & Private**: Connects to your own self-hosted LLM (Ollama, LM Studio, etc.).
-- **Dual Schema Support**: Switch between standard **OpenAPI** (OpenAI compatible) and **LM Studio** experimental endpoints.
+- **Dual Schema Support**: Switch between standard **OpenAI** (OpenAI compatible) and **LM Studio** experimental endpoints.
 - **Smart Queueing**: Automatically detects manga-sized images and translates them sequentially, prioritizing the largest panels first.
 - **Smart Region Post-Processing**: Intelligently merges fragmented text fragments, fixes inverted coordinates, and deduplicates overlap to ensure clean speech bubble overlays.
 - **Responsive Layout**: Overlays automatically re-calculate and re-position on window resize, maintaining accuracy across all screen sizes.
@@ -42,11 +42,11 @@ To use this extension, you need a local LLM server capable of handling **Vision-
    - Set the Host URL to `http://127.0.0.1:1234/api/v1`.
    - Ensure the Model name matches what you loaded in LM Studio.
 
-### Recommended Setup: Ollama / OpenAPI
+### Recommended Setup: Ollama / OpenAI
 
 If you prefer Ollama or a custom OpenAI-compatible proxy:
 1. Ensure your server supports the `/v1/chat/completions` endpoint.
-2. Select **OpenAPI** in the extension settings.
+2. Select **OpenAI** in the extension settings.
 3. Set the Host URL (e.g., `http://localhost:11434/v1`).
 
 ---
@@ -60,7 +60,7 @@ If you prefer Ollama or a custom OpenAI-compatible proxy:
 - **`debug.js`**: Dedicated script for the robust debug modal, handling session logging and JSON export independently from core logic.
 - **`overlay-panel.js`**: Implements the interactive on-screen settings cog and quick translation controls.
 - **`popup.js` & `popup.html`**: The main interface for configuring API endpoints, language pairs, and visual preferences.
-- **`lmstudio.js` / `openapi.js`**: Schema-specific payload builders and response parsers for different local LLM backends.
+- **`lmstudio.js` / `openai.js`**: Schema-specific payload builders and response parsers for different local LLM backends.
 
 ---
 
@@ -78,7 +78,7 @@ You can use the following sample images to test the extension's text detection a
 - [ ] **Text Inpainting**: Removing original Japanese text to provide a "scanlation" quality look.
 - [x] **Performance Optimization**: Implemented JPEG conversion and intelligent downscaling (2048px) to minimize payload size and inference time.
 - [ ] **Expanded Model Support**: Optimized prompts for a wider variety of local Vision models.
-- [ ] **Add Openapi Online API Support**: Add support for online openapi API with your BYOT API Key (e.g. DeepSeek, Grok, Openrouter, etc.)
+- [ ] **Add OpenAI Online API Support**: Add support for online OpenAI API with your BYOT API Key (e.g. DeepSeek, Grok, Openrouter, etc.)
 - [ ] **Add Horde AI Support**: Add support for Horde AI to translate text from images.
 - [ ] **Add OCR Support**: Add support for OCR to extract text from images.
 
