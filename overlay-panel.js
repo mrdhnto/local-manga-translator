@@ -54,7 +54,7 @@
     panelEl.innerHTML = `
       <div class="mtl-panel-header">
         <div class="mtl-panel-header-left">
-          <div class="mtl-panel-icon">漫</div>
+          <img class="mtl-panel-icon" src="${chrome.runtime.getURL('icons/icon48.png')}" alt="漫">
           <div>
             <div class="mtl-panel-title">Manga Translator</div>
             <div class="mtl-panel-subtitle">On-Screen Settings</div>
@@ -97,7 +97,19 @@
             </div>
             <div class="mtl-field">
               <label>Model</label>
-              <input type="text" id="mtl-api-model" placeholder="qwen2.5-vl-7b-instruct" spellcheck="false">
+              <input type="text" id="mtl-api-model" list="mtl-api-model-list" placeholder="qwen2.5-vl-7b-instruct" spellcheck="false" autocomplete="off">
+              <datalist id="mtl-api-model-list"></datalist>
+            </div>
+            <div class="mtl-field" style="display: flex; flex-direction: row; justify-content: space-between; align-items: center; margin-top: 12px; margin-bottom: 8px;">
+              <label for="mtl-use-api-key" style="margin-bottom: 0;">Use API Key</label>
+              <label class="mtl-toggle-switch mtl-toggle-sm">
+                <input type="checkbox" id="mtl-use-api-key">
+                <span class="mtl-toggle-slider"></span>
+              </label>
+            </div>
+            <div class="mtl-field" id="mtl-api-key-field" style="display: none;">
+              <label>API Key</label>
+              <input type="password" id="mtl-api-key" placeholder="sk-..." spellcheck="false">
             </div>
           </div>
         </div>
@@ -211,6 +223,18 @@
     });
     $("mtl-api-host").addEventListener("change", (e) => save("apiHost", e.target.value.trim()));
     $("mtl-api-model").addEventListener("change", (e) => save("model", e.target.value.trim()));
+    $("mtl-use-api-key").addEventListener("change", (e) => {
+      save("useApiKey", e.target.checked);
+      const keyField = $("mtl-api-key-field");
+      keyField.style.display = e.target.checked ? "block" : "none";
+      
+      // Recalculate section height if expanded
+      const apiBody = $("mtl-api-body");
+      if (apiBody && apiBody.style.maxHeight && apiBody.style.maxHeight !== "0px") {
+        apiBody.style.maxHeight = apiBody.scrollHeight + "px";
+      }
+    });
+    $("mtl-api-key").addEventListener("change", (e) => save("apiKey", e.target.value.trim()));
     $("mtl-translate-from").addEventListener("change", (e) => save("translateFrom", e.target.value));
     $("mtl-translate-to").addEventListener("change", (e) => save("translateTo", e.target.value));
     $("mtl-font-family").addEventListener("change", (e) => save("defaultFont", e.target.value));
@@ -242,6 +266,12 @@
           dot.className = "mtl-status-dot mtl-connected";
           text.textContent = "Connected";
           btn.textContent = `✓ ${result.models?.length || 0} model(s)`;
+
+          // Populate datalist with retrieved models
+          const modelList = $("mtl-api-model-list");
+          if (modelList && result.models) {
+            modelList.innerHTML = result.models.map(m => `<option value="${m}"></option>`).join("");
+          }
         } else {
           dot.className = "mtl-status-dot mtl-disconnected";
           text.textContent = "Disconnected";
@@ -306,6 +336,12 @@
     $("mtl-api-schema").value = settings.apiSchema || CONFIG.API_SCHEMA;
     $("mtl-api-host").value = settings.apiHost || CONFIG.API_HOST;
     $("mtl-api-model").value = settings.model || CONFIG.MODEL;
+    
+    const useApiKey = settings.useApiKey !== undefined ? settings.useApiKey : CONFIG.USE_API_KEY;
+    $("mtl-use-api-key").checked = useApiKey;
+    $("mtl-api-key").value = settings.apiKey || CONFIG.API_KEY || "";
+    $("mtl-api-key-field").style.display = useApiKey ? "block" : "none";
+
     $("mtl-translate-from").value = settings.translateFrom || CONFIG.TRANSLATE_FROM;
     $("mtl-translate-to").value = settings.translateTo || CONFIG.TRANSLATE_TO;
     $("mtl-font-family").value = settings.defaultFont || CONFIG.DEFAULT_FONT;

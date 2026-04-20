@@ -243,6 +243,7 @@ body::-webkit-scrollbar-thumb {
 }
 
 .form-group input[type="text"],
+.form-group input[type="password"],
 .form-group select {
   width: 100%;
   padding: 7px 10px;
@@ -257,6 +258,7 @@ body::-webkit-scrollbar-thumb {
 }
 
 .form-group input[type="text"]:focus,
+.form-group input[type="password"]:focus,
 .form-group select:focus {
   border-color: var(--border-focus);
   box-shadow: 0 0 0 2px rgba(124, 58, 237, 0.1);

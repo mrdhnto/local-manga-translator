@@ -39,6 +39,7 @@
   "web_accessible_resources": [
     {
       "resources": [
+        "icons/icon48.png",
         "fonts/cc-wild-words/cc-wild-words.ttf",
         "fonts/komika/KOMIKAH_.ttf"
       ],

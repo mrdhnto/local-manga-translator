@@ -18,6 +18,8 @@ async function getSettings() {
     apiEndpointLmStudio:   stored.apiEndpointLmStudio   || CONFIG.API_ENDPOINT_LMSTUDIO,
     apiSchema:     stored.apiSchema     || CONFIG.API_SCHEMA,
     model:         stored.model         || CONFIG.MODEL,
+    useApiKey:     stored.useApiKey !== undefined ? stored.useApiKey : CONFIG.USE_API_KEY,
+    apiKey:        stored.apiKey || CONFIG.API_KEY,
     translateFrom: stored.translateFrom || CONFIG.TRANSLATE_FROM,
     translateTo:   stored.translateTo   || CONFIG.TRANSLATE_TO,
     defaultFont:   stored.defaultFont   || CONFIG.DEFAULT_FONT,
@@ -137,10 +139,15 @@ async function callLLMApi(imageBase64, settings, retryCount = 0) {
     body = buildOpenAIRequest(imageBase64, settings, systemPrompt);
   }
 
+  const headers = { "Content-Type": "application/json" };
+  if (settings.useApiKey && settings.apiKey) {
+    headers["Authorization"] = `Bearer ${settings.apiKey}`;
+  }
+
   try {
     const response = await fetch(url, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: headers,
       body: JSON.stringify(body)
     });
 
@@ -203,9 +210,14 @@ async function testConnection(settings) {
   const baseUrl = settings.apiHost.endsWith("/") ? settings.apiHost : settings.apiHost + "/";
   const url = `${baseUrl}models`;
   try {
+    const headers = { "Content-Type": "application/json" };
+    if (settings.useApiKey && settings.apiKey) {
+      headers["Authorization"] = `Bearer ${settings.apiKey}`;
+    }
+
     const response = await fetch(url, {
       method: "GET",
-      headers: { "Content-Type": "application/json" }
+      headers: headers
     });
     if (!response.ok) {
       throw new Error(`HTTP ${response.status}`);
@@ -306,6 +318,8 @@ chrome.runtime.onInstalled.addListener(async (details) => {
       apiEndpointLmStudio: CONFIG.API_ENDPOINT_LMSTUDIO,
       apiSchema: CONFIG.API_SCHEMA,
       model: CONFIG.MODEL,
+      useApiKey: CONFIG.USE_API_KEY,
+      apiKey: CONFIG.API_KEY,
       translateFrom: CONFIG.TRANSLATE_FROM,
       translateTo: CONFIG.TRANSLATE_TO,
       defaultFont: CONFIG.DEFAULT_FONT,
