@@ -9,6 +9,8 @@ const CONFIG = {
   API_ENDPOINT_LMSTUDIO: "chat",
   API_SCHEMA: "lmstudio", // "openai" or "lmstudio"
   MODEL: "qwen2.5-vl-7b-instruct",
+  USE_API_KEY: false,
+  API_KEY: "",
 
   // ── Translation Defaults ──────────────────────────────────
   TRANSLATE_FROM: "japanese",

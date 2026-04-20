@@ -58,7 +58,7 @@ If you prefer Ollama or a custom OpenAI-compatible proxy:
 - **`region-processor.js`**: A deep-processing pipeline that validates LLM output, merges fragmented character boxes, and fixes coordinate hallucinations.
 - **`config.js`**: Centralized configuration for default languages, fonts, and system-wide thresholds.
 - **`debug.js`**: Dedicated script for the robust debug modal, handling session logging and JSON export independently from core logic.
-- **`overlay-panel.js`**: Implements the interactive on-screen settings cog and quick translation controls.
+- **`overlay-panel.js`**: Implements the interactive on-screen settings cog and quick translation controls. Also the place for more Advanced Settings to not clutter the popup.
 - **`popup.js` & `popup.html`**: The main interface for configuring API endpoints, language pairs, and visual preferences.
 - **`lmstudio.js` / `openai.js`**: Schema-specific payload builders and response parsers for different local LLM backends.
 
@@ -78,7 +78,7 @@ You can use the following sample images to test the extension's text detection a
 - [ ] **Text Inpainting**: Removing original Japanese text to provide a "scanlation" quality look.
 - [x] **Performance Optimization**: Implemented JPEG conversion and intelligent downscaling (2048px) to minimize payload size and inference time.
 - [ ] **Expanded Model Support**: Optimized prompts for a wider variety of local Vision models.
-- [ ] **Add OpenAI Online API Support**: Add support for online OpenAI API with your BYOT API Key (e.g. DeepSeek, Grok, Openrouter, etc.)
+- [x] **Add OpenAI Online API Support**: Add support for online OpenAI Compatible API with your BYOT API Key (e.g. DeepSeek, Grok, Openrouter, etc.)
 - [ ] **Add Horde AI Support**: Add support for Horde AI to translate text from images.
 - [ ] **Add OCR Support**: Add support for OCR to extract text from images.
 

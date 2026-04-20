@@ -13,6 +13,9 @@ document.addEventListener("DOMContentLoaded", async () => {
   const apiSchema          = document.getElementById("api-schema");
   const apiHost            = document.getElementById("api-host");
   const apiModel           = document.getElementById("api-model");
+  const useApiKey          = document.getElementById("use-api-key");
+  const apiKey             = document.getElementById("api-key");
+  const apiKeyContainer    = document.getElementById("api-key-container");
   const translateFrom      = document.getElementById("translate-from");
   const translateTo        = document.getElementById("translate-to");
   const fontFamily         = document.getElementById("font-family");
@@ -51,6 +54,11 @@ document.addEventListener("DOMContentLoaded", async () => {
     apiHost.value              = settings.apiHost       || CONFIG.API_HOST;
     apiModel.value             = settings.model         || CONFIG.MODEL;
     
+    const isApiKeyEnabled      = settings.useApiKey !== undefined ? settings.useApiKey : CONFIG.USE_API_KEY;
+    useApiKey.checked          = isApiKeyEnabled;
+    apiKey.value               = settings.apiKey || CONFIG.API_KEY || "";
+    apiKeyContainer.style.display = isApiKeyEnabled ? "" : "none";
+
     updateHostPlaceholder();
     translateFrom.value        = settings.translateFrom || CONFIG.TRANSLATE_FROM;
     translateTo.value          = settings.translateTo   || CONFIG.TRANSLATE_TO;
@@ -107,6 +115,18 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   apiHost.addEventListener("change", () => saveSetting("apiHost", apiHost.value.trim()));
   apiModel.addEventListener("change", () => saveSetting("model", apiModel.value.trim()));
+  useApiKey.addEventListener("change", () => {
+    const isChecked = useApiKey.checked;
+    saveSetting("useApiKey", isChecked);
+    apiKeyContainer.style.display = isChecked ? "" : "none";
+    
+    // Recalculate section height if expanded
+    const apiBody = document.getElementById("api-settings-body");
+    if (apiBody && apiBody.style.maxHeight && apiBody.style.maxHeight !== "0px") {
+      apiBody.style.maxHeight = apiBody.scrollHeight + "px";
+    }
+  });
+  apiKey.addEventListener("change", () => saveSetting("apiKey", apiKey.value.trim()));
   translateFrom.addEventListener("change", () => saveSetting("translateFrom", translateFrom.value));
   translateTo.addEventListener("change", () => saveSetting("translateTo", translateTo.value));
   fontFamily.addEventListener("change", () => saveSetting("defaultFont", fontFamily.value));
@@ -161,6 +181,12 @@ document.addEventListener("DOMContentLoaded", async () => {
         statusText.textContent = "Connected";
         const modelCount = result.models?.length || 0;
         btnTestConn.innerHTML = `<span class="btn-icon">✓</span> ${modelCount} model(s) found`;
+        
+        // Populate datalist with retrieved models
+        const modelList = document.getElementById("api-model-list");
+        if (modelList && result.models) {
+          modelList.innerHTML = result.models.map(m => `<option value="${escapeHtml(m)}"></option>`).join("");
+        }
       } else {
         statusDot.className = "status-dot disconnected";
         statusText.textContent = "Disconnected";
