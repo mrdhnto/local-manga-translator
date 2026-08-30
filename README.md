@@ -1,10 +1,27 @@
 # Local Manga Translator
 
+> [!IMPORTANT]
+> **⚠️ This Repository is Archived**
+>
+> This proof-of-concept repository is **no longer actively maintained**. Development has moved to **[Libre Manga Translator (LMT)](https://github.com/mrdhnto/libre-manga-translator)**, a complete rewrite built on the [ComicTL](https://github.com/kiuyha/ComicTL) foundation with every concept from this PoC integrated and significantly expanded:
+>
+> - ✅ **Three translation modes**: Local WebGPU (Qwen3 via WebLLM), Cloud (Gemini API), and Self-Hosted (Ollama / LM Studio / any OpenAI-compatible endpoint - the original purpose of this repo)
+> - ✅ **Advanced bubble detection**: Custom YOLO26 ONNX model with an interactive drag/resize/undo editor
+> - ✅ **On-device OCR**: PaddleOCR ONNX with full coordinate mapping - no more VLM image payloads needed
+> - ✅ **Dual schema support**: OpenAI-compatible and LM Studio experimental endpoints (ported directly from this codebase)
+> - ✅ **Production-ready architecture**: WXT + Svelte 5 + TypeScript, MV3 service worker hardening, offscreen inference thread, series context and site adapters
+> - ✅ **Chrome and Firefox** support with signed release planned
+>
+> **👉 [Visit the successor repository](https://github.com/mrdhnto/libre-manga-translator) for the actively maintained version.**
+> **📦 [Download the latest release](https://github.com/mrdhnto/libre-manga-translator/releases)**
+
+---
+
 Local Manga Translator is an experimental Chrome extension designed to bring seamless, privacy-focused auto-translation to your favorite manga and comics. By leveraging the power of **Local Large Language Models (LLMs)**, you can translate manga panels directly in your browser without sending your data to external cloud services.
 
 > [!WARNING]
-> **Status: Under Active Development**
-> This project is currently in an experimental phase. While text detection and overlay translation are functional, features like **text painting/inpainting** (removing original text to "clean" the bubbles) are not yet implemented.
+> **Status: Proof-of-Concept (Archived)**
+> This experimental phase is complete. The concepts explored here - self-hosted LLM integration, dual schema support, and debug logging - have been ported and improved in [Libre Manga Translator](https://github.com/mrdhnto/libre-manga-translator). This codebase remains for historical reference only and receives no further updates.
 
 ---
 
@@ -86,14 +103,14 @@ You can use the following sample images to test the extension's text detection a
 
 ## 🤝 Contributing
 
-This is a passion project built for the manga and anime community. Whether you're a developer or a reader with a great idea, contributions are highly encouraged!
+This repository is archived and no longer accepts pull requests or issues.
 
-- Found a bug? Open an issue.
-- Have a feature idea? Start a discussion.
-- Want to code? Submit a Pull Request.
+If you want to contribute to active development, head to **[Libre Manga Translator](https://github.com/mrdhnto/libre-manga-translator)** - the successor project. The easiest way to start is a site adapter PR, which takes about three minutes and helps everyone who reads on that site.
 
 ---
 
 ## 📜 Disclaimer
 
-This project is **purely experimental**. It is intended for personal use and to explore the capabilities of local AI in niche tools. Use it at your own risk, and always support the official releases of the manga you read!
+This project is **purely experimental** and was intended as a proof-of-concept for local AI in browser extensions. It is archived and no longer maintained.
+
+For a production-ready version with all features from this PoC and more, use **[Libre Manga Translator](https://github.com/mrdhnto/libre-manga-translator)**. Always support the official releases of the manga you read.
